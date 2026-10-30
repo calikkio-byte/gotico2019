@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formazioni – U.S.D. Gotico Garibaldina</title>
+<style>
+:root{
+  --blu:#0b4da2; --blu-scuro:#07336b; --giallo:#f2c200;
+  --bg:#f2f5fa; --testo:#16233a; --bordo:#dbe2ee; --muto:#6b7c96;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);color:var(--testo);font-size:15px;line-height:1.4}
+header.top{background:linear-gradient(135deg,var(--blu),var(--blu-scuro));color:#fff;
+  padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header.top h1{margin:0;font-size:1.1rem;letter-spacing:.3px}
+header.top p{margin:3px 0 0;font-size:.78rem;opacity:.85}
+.btn-stampa{background:var(--giallo);color:#16233a;border:0;padding:10px 16px;border-radius:9px;
+  font:inherit;font-weight:700;cursor:pointer}
+main{max-width:1080px;margin:0 auto;padding:20px 16px 70px}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blu);margin:28px 0 10px}
+h2:first-of-type{margin-top:8px}
+.card{background:#fff;border:1px solid var(--bordo);border-radius:14px;padding:16px;
+  box-shadow:0 1px 3px rgba(16,32,64,.06)}
+.partite{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.partita-head{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  border-bottom:2px solid var(--blu);padding-bottom:8px;margin-bottom:12px}
+.partita-head h3{margin:0;font-size:1rem;color:var(--blu)}
+.head-dx{display:flex;align-items:center;gap:8px}
+.conteggio{font-size:.75rem;font-weight:700;background:#e8eefb;color:var(--blu);
+  padding:4px 10px;border-radius:999px;white-space:nowrap}
+.conteggio.ok{background:#e3f7e8;color:#1c7a3a}
+.conteggio.over{background:#fde8e8;color:#b02020}
+.btn-pdf{border:1px solid var(--bordo);background:#fff;color:var(--blu);border-radius:8px;
+  padding:5px 10px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer;letter-spacing:.04em}
+.btn-pdf:hover{background:#eef3fc}
+.campi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.68rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:#5a6b86}
+input,select{font:inherit;font-weight:500;text-transform:none;letter-spacing:0;color:var(--testo);
+  padding:8px 10px;border:1px solid var(--bordo);border-radius:8px;background:#fbfcff;width:100%}
+input:focus,select:focus{outline:2px solid #b9cdf0;border-color:var(--blu)}
+.convocati{list-style:none;margin:14px 0 0;padding:12px 0 0;border-top:1px dashed var(--bordo);
+  display:flex;flex-direction:column;gap:6px}
+.convocati li{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.mini-foto{width:26px;height:26px;border-radius:50%;background:#e8eefb;color:var(--blu);
+  display:grid;place-items:center;font-size:.65rem;font-weight:800;overflow:hidden;flex:0 0 26px}
+.mini-foto img{width:100%;height:100%;object-fit:cover}
+.mini-nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-x{border:0;background:transparent;color:#b02020;cursor:pointer;font-size:.9rem;padding:2px 6px}
+.vuoto{color:var(--muto);font-style:italic;font-size:.8rem}
+.barra-rosa{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.barra-rosa input[type=search]{max-width:300px}
+.btn-secondario{margin-left:auto;background:#fff;border:1px solid var(--bordo);border-radius:9px;
+  padding:8px 12px;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;color:#3a4a63}
+#lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
+.giocatore{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--bordo);
+  border-radius:12px;padding:10px}
+.giocatore.conv{border-color:#9fc0ee;box-shadow:0 0 0 2px rgba(11,77,162,.12)}
+.foto{width:52px;height:52px;flex:0 0 52px;border-radius:50%;overflow:hidden;background:#e8eefb;
+  display:grid;place-items:center}
+.foto img{width:100%;height:100%;object-fit:cover}
+.iniziali{font-weight:800;color:var(--blu)}
+.dati{flex:1;min-width:0;display:flex;flex-direction:column}
+.dati strong{font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dati small{color:var(--muto);font-size:.7rem}
+.azioni{display:flex;gap:4px}
+.azioni button{border:1px solid var(--bordo);background:#f7f9fe;border-radius:8px;padding:7px 8px;
+  font:inherit;font-size:.72rem;font-weight:800;color:#3a4a63;cursor:pointer;min-width:34px}
+.btn-sel.attivo{background:var(--blu);border-color:var(--blu);color:#fff}
+.btn-sel.p2.attivo{background:var(--giallo);border-color:var(--giallo);color:#16233a}
+.btn-del{color:#b02020}
+.form-giocatore{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;align-items:end}
+.form-giocatore .btn-aggiungi{background:var(--blu);color:#fff;border:0;border-radius:9px;
+  padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}
+.preview{display:flex;align-items:center;gap:8px}
+.preview img{width:52px;height:52px;object-fit:cover;border-radius:50%;border:2px solid var(--bordo)}
+@media (max-width:640px){ .campi{grid-template-columns:1fr} }
+
+/* ====== AREA DI STAMPA / PDF (nascosta a video) ====== */
+#stampa{display:none}
+
+@media print{
+  @page{ size:A4 portrait; margin:12mm; }
+  html,body{background:#fff !important; color:#000}
+  body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:12px }
+  header.top, main{ display:none !important }
+  #stampa{ display:block }
+
+  .print-sheet + .print-sheet{ break-before:page }
+  .print-sheet{ padding:0 }
+
+  .print-head{ display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:3px solid #0b4da2; padding-bottom:8px; margin-bottom:12px }
+  .print-head h2{ margin:0; font-size:16pt; color:#0b4da2; text-transform:none; letter-spacing:0 }
+  .print-head p{ margin:2px 0 0; font-size:9pt; color:#555 }
+  .print-badge{ font-size:13pt; font-weight:800; color:#fff; background:#0b4da2;
+    padding:6px 16px; border-radius:8px; white-space:nowrap }
+
+  .print-info{ width:100%; border-collapse:collapse; margin-bottom:14px; font-size:10pt }
+  .print-info th{ text-align:left; color:#5a6b86; font-size:7.5pt; text-transform:uppercase;
+    letter-spacing:.06em; padding:5px 8px 5px 0; width:70px; vertical-align:top; font-weight:700 }
+  .print-info td{ padding:5px 14px 5px 0; font-weight:600; border-bottom:1px solid #e3e9f3 }
+  .print-muto{ color:#9aa8bd; font-weight:400 }
+
+  .print-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:6px }
+  .print-player{ display:flex; align-items:center; gap:8px; border:1px solid #c9d3e2;
+    border-radius:10px; padding:7px; break-inside:avoid }
+  .print-photo{ width:46px; height:46px; flex:0 0 46px; border-radius:50%; overflow:hidden;
+    background:#e8eefb; display:grid; place-items:center;
+    font-size:10pt; font-weight:800; color:#0b4da2 }
+  .print-photo img{ width:100%; height:100%; object-fit:cover }
+  .print-dati{ min-width:0 }
+  .print-dati strong{ display:block; font-size:9pt; line-height:1.15;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .print-dati small{ font-size:7pt; color:#5a6b86 }
+
+  .print-vuoto{ font-style:italic; color:#8a97ab; font-size:10pt; padding:12px 0;
+    grid-column:1 / -1 }
+  .print-foot{ margin-top:16px; border-top:1px solid #c9d3e2; padding-top:6px;
+    font-size:7.5pt; color:#8a97ab; display:flex; justify-content:space-between }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>U.S.D. Gotico Garibaldina – Formazioni</h1>
+    <p>Primi Calci 2019 · gestione convocati e partite</p>
+  </div>
+  <button class="btn-stampa" id="btn-pdf-tutte" title="Esporta entrambe le partite in PDF">
+    📄 Esporta PDF
+  </button>
+</header>
+
+<main>
+
+  <h2>Partite</h2>
+  <section class="partite">
+
+    <article class="card">
+      <div class="partita-head">
+        <h3>Partita 1</h3>
+        <div class="head-dx">
+          <span class="conteggio" id="count1">0/5 giocatori</span>
+          <button class="btn-pdf" data-pdf="1" title="Esporta in PDF solo la Partita 1">PDF</button>
+        </div>
+      </div>
+      <div class="campi">
+        <label>Avversario<input id="m1-avversario" type="text" placeholder="Es. Pol. Sala"></label>
+        <label>Tipo<select id="m1-tipo">
+          <option>Amichevole</option><option>Campionato</option><option>Torneo</option>
+        </select></label>
+        <label>Data<input id="m1-data" type="date"></label>
+        <label>Campo<input id="m1-campo" type="text" placeholder="Es. Campo Comunale"></label>
+        <label>Ritrovo<input id="m1-ritrovo" type="time"></label>
+        <label>Inizio partita<input id="m1-inizio" type="time"></label>
+      </div>
+      <ul class="convocati" id="conv1"></ul>
+    </article>
+
+    <article class="card">
+      <div class="partita-head">
+        <h3>Partita 2</h3>
+        <div class="head-dx">
+          <span class="conteggio" id="count2">0/5 giocatori</span>
+          <button class="btn-pdf" data-pdf="2" title="Esporta in PDF solo la Partita 2">PDF</button>
+        </div>
+      </div>
+      <div class="campi">
+        <label>Avversario<input id="m2-avversario" type="text" placeholder="Es. Pol. Sala"></label>
+        <label>Tipo<select id="m2-tipo">
+          <option>Amichevole</option><option>Campionato</option><option>Torneo</option>
+        </select></label>
+        <label>Data<input id="m2-data" type="date"></label>
+        <label>Campo<input id="m2-campo" type="text" placeholder="Es. Campo Comunale"></label>
+        <label>Ritrovo<input id="m2-ritrovo" type="time"></label>
+        <label>Inizio partita<input id="m2-inizio" type="time"></label>
+      </div>
+      <ul class="convocati" id="conv2"></ul>
+    </article>
+
+  </section>
+
+  <h2>Rosa – assegna alla partita</h2>
+  <div class="barra-rosa">
+    <input type="search" id="cerca" placeholder="Cerca giocatore…">
+    <button class="btn-secondario" id="azzera">Azzera convocazioni</button>
+  </div>
+  <div id="lista"></div>
+
+  <h2>Aggiungi giocatore</h2>
+  <form class="card form-giocatore" id="form-nuovo">
+    <label>Cognome<input name="cognome" required></label>
+    <label>Nome<input name="nome" required></label>
+    <label>Cartellino<input name="cartellino" inputmode="numeric"></label>
+    <label>Data di nascita<input type="date" name="nascita"></label>
+    <label>Foto<input type="file" id="foto-nuovo" accept="image/*"></label>
+    <div class="preview" id="preview-nuovo"></div>
+    <button class="btn-aggiungi" type="submit">+ Aggiungi</button>
+  </form>
+
+</main>
+
+<!-- Contenitore usato solo per la stampa / esportazione PDF -->
+<section id="stampa" aria-hidden="true"></section>
+
+<script>
+const STORAGE_KEY = 'gotico-formazioni-v1';
+
+/* Rosa precaricata dal referto */
+const BASE_PLAYERS = [
+  ['Barilli','Alessandro','4738945','2019-06-17'],
+  ['Benussi','Giovanni','4653837','2019-12-12'],
+  ['Chilikov','Alex Borislavov','4910951','2019-11-13'],
+  ['Coello Ganan','Santiago','4796825','2019-01-30'],
+  ["D'Angola",'Filippo','4863145','2019-01-01'],
+  ['Elmadhi','Daniel','4731652','2019-06-13'],
+  ['Lusha','Xhuljo','4930989','2019-07-21'],
+  ['Mirci','Leonardo','4941943','2019-11-07'],
+  ["Orrù",'Riccardo','4559310','2019-09-04'],
+  ['Rizzello','Ian','4964410','2019-03-20'],
+  ['Ronda','Filippo','4465605','2019-07-01'],
+  ['Tuccillo','Mattia','4964426','2019-06-20'],
+  ['Grassi','Emanuele','4717633','2020-05-30']
+];
+
+const MATCH_FIELDS = ['avversario','tipo','data','campo','ritrovo','inizio'];
+let state;
+let pendingPhoto = null;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => (
+  {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+));
+
+function emptyMatch(){
+  return {avversario:'', tipo:'Campionato', data:'', campo:'', ritrovo:'', inizio:''};
+}
+
+function defaultState(){
+  return {
+    players: BASE_PLAYERS.map(([cognome,nome,cartellino,nascita],i) => ({
+      id:'b'+i, cognome, nome, cartellino, nascita, foto:null, partita:0
+    })),
+    matches: {1: emptyMatch(), 2: emptyMatch()}
+  };
+}
+
+function load(){
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){}
+  if(!s || !Array.isArray(s.players)) s = defaultState();
+  if(!s.matches) s.matches = {1: emptyMatch(), 2: emptyMatch()};
+  [1,2].forEach(n => { s.matches[n] = Object.assign(emptyMatch(), s.matches[n] || {}); });
+  state = s;
+}
+
+function save(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ alert('Memoria del browser piena: riduci numero/dimensione delle foto.'); }
+}
+
+/* Ridimensiona la foto e la converte in base64 (così resta salvata nel browser) */
+function fileToDataURL(file, max){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('immagine non valida')); };
+    img.src = url;
+  });
+}
+
+/* ---------- Partite ---------- */
+function bindMatchInputs(){
+  [1,2].forEach(n => {
+    MATCH_FIELDS.forEach(k => {
+      const el = document.getElementById(`m${n}-${k}`);
+      el.value = state.matches[n][k] || (k === 'tipo' ? 'Campionato' : '');
+      const upd = () => { state.matches[n][k] = el.value; save(); };
+      el.addEventListener('input', upd);
+      el.addEventListener('change', upd);
+    });
+  });
+}
+
+/* ---------- Rosa ---------- */
+function renderPlayers(){
+  const q = (document.getElementById('cerca').value || '').trim().toLowerCase();
+  const players = [...state.players]
+    .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'))
+    .filter(p => !q || (p.cognome+' '+p.nome).toLowerCase().includes(q));
+
+  const box = document.getElementById('lista');
+  if(!players.length){
+    box.innerHTML = '<p class="vuoto">Nessun giocatore trovato.</p>';
+    return;
+  }
+  box.innerHTML = players.map(p => {
+    const foto = p.foto
+      ? `<img src="${p.foto}" alt="Foto ${esc(p.cognome)}">`
+      : `<span class="iniziali">${esc((p.cognome[0]||'') + (p.nome[0]||''))}</span>`;
+    const data = p.nascita ? p.nascita.split('-').reverse().join('/') : '—';
+    return `<div class="giocatore ${p.partita ? 'conv' : ''}">
+      <div class="foto">${foto}</div>
+      <div class="dati">
+        <strong>${esc(p.cognome)} ${esc(p.nome)}</strong>
+        <small>${esc(data)} · cartellino ${esc(p.cartellino || '—')}</small>
+      </div>
+      <div class="azioni">
+        <button class="btn-sel ${p.partita===1?'attivo':''}" data-id="${p.id}" data-partita="1" title="Partita 1">P1</button>
+        <button class="btn-sel p2 ${p.partita===2?'attivo':''}" data-id="${p.id}" data-partita="2" title="Partita 2">P2</button>
+        <button class="btn-foto" data-foto="${p.id}" title="Carica / cambia foto">📷</button>
+        <button class="btn-del" data-del="${p.id}" title="Elimina giocatore">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMatches(){
+  [1,2].forEach(n => {
+    const players = state.players
+      .filter(p => p.partita === n)
+      .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'));
+
+    const ul = document.getElementById('conv'+n);
+    ul.innerHTML = players.length
+      ? players.map(p => `<li>
+          <span class="mini-foto">${p.foto
+            ? `<img src="${p.foto}" alt="">`
+            : esc((p.cognome[0]||'') + (p.nome[0]||''))}</span>
+          <span class="mini-nome">${esc(p.cognome)} ${esc(p.nome)}</span>
+          <button class="mini-x" data-remove="${p.id}" title="Togli dalla partita">✕</button>
+        </li>`).join('')
+      : '<li class="vuoto">Nessun convocato</li>';
+
+    const badge = document.getElementById('count'+n);
+    badge.textContent = `${players.length}/5 giocatori`;
+    badge.className = 'conteggio' + (players.length === 5 ? ' ok' : (players.length > 5 ? ' over' : ''));
+  });
+}
+
+function renderAll(){ renderPlayers(); renderMatches(); }
+
+/* ---------- Foto di un giocatore esistente ---------- */
+function pickPhoto(id){
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.onchange = async () => {
+    const file = inp.files && inp.files[0];
+    if(!file) return;
+    try{
+      const url = await fileToDataURL(file, 320);
+      const p = state.players.find(x => x.id === id);
+      if(!p) return;
+      p.foto = url;
+      save(); renderAll();
+    }catch(e){ alert("Impossibile leggere l'immagine."); }
+  };
+  inp.click();
+}
+
+/* ---------- Esportazione PDF ---------- */
+function sheetHTML(n){
+  const m = state.matches[n];
+  const players = state.players
+    .filter(p => p.partita === n)
+    .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'));
+
+  const val = v => (v && String(v).trim()) ? esc(v) : '<span class="print-muto">—</span>';
+  const dataIt = m.data
+    ? esc(m.data.split('-').reverse().join('/'))
+    : '<span class="print-muto">—</span>';
+
+  const grid = players.length ? players.map(p => {
+    const foto = p.foto
+      ? `<img src="${p.foto}" alt="">`
+      : esc((p.cognome[0]||'') + (p.nome[0]||''));
+    const nasc = p.nascita ? p.nascita.split('-').reverse().join('/') : '—';
+    return `<div class="print-player">
+      <div class="print-photo">${foto}</div>
+      <div class="print-dati">
+        <strong>${esc(p.cognome)} ${esc(p.nome)}</strong>
+        <small>${esc(nasc)}${p.cartellino ? ' · cart. ' + esc(p.cartellino) : ''}</small>
+      </div>
+    </div>`;
+  }).join('') : '<p class="print-vuoto">Nessun convocato</p>';
+
+  return `<section class="print-sheet">
+    <div class="print-head">
+      <div>
+        <h2>U.S.D. Gotico Garibaldina</h2>
+        <p>Primi Calci 2019 · Formazione</p>
+      </div>
+      <div class="print-badge">Partita ${n}</div>
+    </div>
+
+    <table class="print-info">
+      <tr>
+        <th>Avversario</th><td>${val(m.avversario)}</td>
+        <th>Tipo</th><td>${val(m.tipo)}</td>
+      </tr>
+      <tr>
+        <th>Data</th><td>${dataIt}</td>
+        <th>Campo</th><td>${val(m.campo)}</td>
+      </tr>
+      <tr>
+        <th>Ritrovo</th><td>${val(m.ritrovo)}</td>
+        <th>Inizio</th><td>${val(m.inizio)}</td>
+      </tr>
+    </table>
+
+    <div class="print-grid">${grid}</div>
+
+    <div class="print-foot">
+      <span>Convocati: ${players.length}</span>
+      <span>Generato il ${new Date().toLocaleDateString('it-IT')}</span>
+    </div>
+  </section>`;
+}
+
+function renderStampa(lista){
+  document.getElementById('stampa').innerHTML = lista.map(sheetHTML).join('');
+}
+
+async function esportaPDF(quale){
+  renderStampa(quale ? [quale] : [1,2]);
+  const box = document.getElementById('stampa');
+  /* attende che tutte le foto siano pronte prima di aprire la stampa */
+  await Promise.all([...box.querySelectorAll('img')].map(img =>
+    img.complete ? Promise.resolve()
+                 : new Promise(r => { img.onload = r; img.onerror = r; })
+  ));
+  window.print();   /* nel dialogo scegliere "Salva come PDF" */
+}
+
+/* Se l'utente stampa con Ctrl+P senza aver cliccato il pulsante, genero entrambe le partite */
+window.addEventListener('beforeprint', () => {
+  if(!document.getElementById('stampa').innerHTML.trim()) renderStampa([1,2]);
+});
+window.addEventListener('afterprint', () => {
+  document.getElementById('stampa').innerHTML = '';
+});
+
+/* ---------- Click delegati ---------- */
+document.addEventListener('click', e => {
+  const sel = e.target.closest('[data-partita]');
+  if(sel){
+    const p = state.players.find(x => x.id === sel.dataset.id);
+    const n = Number(sel.dataset.partita);
+    if(p){ p.partita = (p.partita === n) ? 0 : n; save(); renderAll(); }
+    return;
+  }
+  const rm = e.target.closest('[data-remove]');
+  if(rm){
+    const p = state.players.find(x => x.id === rm.dataset.remove);
+    if(p){ p.partita = 0; save(); renderAll(); }
+    return;
+  }
+  const f = e.target.closest('[data-foto]');
+  if(f){ pickPhoto(f.dataset.foto); return; }
+  const d = e.target.closest('[data-del]');
+  if(d){
+    const p = state.players.find(x => x.id === d.dataset.del);
+    if(p && confirm(`Eliminare ${p.cognome} ${p.nome} dalla rosa?`)){
+      state.players = state.players.filter(x => x.id !== p.id);
+      save(); renderAll();
+    }
+  }
+});
+
+document.getElementById('cerca').addEventListener('input', renderPlayers);
+
+document.getElementById('azzera').addEventListener('click', () => {
+  if(!confirm('Togliere tutti i giocatori dalle due partite?')) return;
+  state.players.forEach(p => p.partita = 0);
+  save(); renderAll();
+});
+
+/* Pulsanti PDF */
+document.getElementById('btn-pdf-tutte').addEventListener('click', () => esportaPDF());
+document.querySelectorAll('[data-pdf]').forEach(b =>
+  b.addEventListener('click', () => esportaPDF(Number(b.dataset.pdf)))
+);
+
+/* ---------- Nuovo giocatore ---------- */
+const form = document.getElementById('form-nuovo');
+const fotoNuovo = document.getElementById('foto-nuovo');
+const preview = document.getElementById('preview-nuovo');
+
+fotoNuovo.addEventListener('change', async () => {
+  const file = fotoNuovo.files && fotoNuovo.files[0];
+  if(!file){ pendingPhoto = null; preview.innerHTML = ''; return; }
+  try{
+    pendingPhoto = await fileToDataURL(file, 320);
+    preview.innerHTML = `<img src="${pendingPhoto}" alt="Anteprima">`;
+  }catch(e){
+    alert('Immagine non valida.');
+    pendingPhoto = null;
+    preview.innerHTML = '';
+  }
+});
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  const cognome = String(fd.get('cognome') || '').trim();
+  const nome = String(fd.get('nome') || '').trim();
+  if(!cognome || !nome) return;
+
+  state.players.push({
+    id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    cognome, nome,
+    cartellino: String(fd.get('cartellino') || '').trim(),
+    nascita: String(fd.get('nascita') || ''),
+    foto: pendingPhoto,
+    partita: 0
+  });
+  save();
+  form.reset();
+  pendingPhoto = null;
+  preview.innerHTML = '';
+  renderAll();
+});
+
+/* ---------- Avvio ---------- */
+load();
+bindMatchInputs();
+renderAll();
+</script>
+</body>
+</html>
