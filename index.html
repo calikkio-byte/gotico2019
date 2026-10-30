@@ -1,545 +1,588 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Formazioni – U.S.D. Gotico Garibaldina</title>
+<title>Formazioni Primi Calci</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
+/* Layout: scheda gara a sinistra, convocazioni a destra su schermo largo; su telefono una colonna con barra fissa per l'export.
+   Palette: azzurro e grigio del referto FIGC su carta fredda; ambra per distinguere la Partita 2.
+   Type: Barlow Condensed per i nomi (come i tabelloni), Barlow per il testo. */
 :root{
-  --blu:#0b4da2; --blu-scuro:#07336b; --giallo:#f2c200;
-  --bg:#f2f5fa; --testo:#16233a; --bordo:#dbe2ee; --muto:#6b7c96;
+  --bg:#EDF1F6; --surface:#FFFFFF; --ink:#0F1B2D; --muted:#566579; --line:#D3DBE6; --field:#F6F8FB;
+  --p1:#0A74B5; --on-p1:#FFFFFF; --p2:#9A5B00; --on-p2:#FFFFFF; --danger:#B42318;
+  --font-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1420; --surface:#132033; --ink:#E8EEF5; --muted:#97A7BB; --line:#253649; --field:#0F1B2B;
+    --p1:#5BB8F0; --on-p1:#06223A; --p2:#F0B04A; --on-p2:#2A1A00; --danger:#FF8A7A; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1420; --surface:#132033; --ink:#E8EEF5; --muted:#97A7BB; --line:#253649; --field:#0F1B2B;
+  --p1:#5BB8F0; --on-p1:#06223A; --p2:#F0B04A; --on-p2:#2A1A00; --danger:#FF8A7A; color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  background:var(--bg);color:var(--testo);font-size:15px;line-height:1.4}
-header.top{background:linear-gradient(135deg,var(--blu),var(--blu-scuro));color:#fff;
-  padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-header.top h1{margin:0;font-size:1.1rem;letter-spacing:.3px}
-header.top p{margin:3px 0 0;font-size:.78rem;opacity:.85}
-.btn-stampa{background:var(--giallo);color:#16233a;border:0;padding:10px 16px;border-radius:9px;
-  font:inherit;font-weight:700;cursor:pointer}
-main{max-width:1080px;margin:0 auto;padding:20px 16px 70px}
-h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blu);margin:28px 0 10px}
-h2:first-of-type{margin-top:8px}
-.card{background:#fff;border:1px solid var(--bordo);border-radius:14px;padding:16px;
-  box-shadow:0 1px 3px rgba(16,32,64,.06)}
-.partite{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
-.partita-head{display:flex;justify-content:space-between;align-items:center;gap:8px;
-  border-bottom:2px solid var(--blu);padding-bottom:8px;margin-bottom:12px}
-.partita-head h3{margin:0;font-size:1rem;color:var(--blu)}
-.head-dx{display:flex;align-items:center;gap:8px}
-.conteggio{font-size:.75rem;font-weight:700;background:#e8eefb;color:var(--blu);
-  padding:4px 10px;border-radius:999px;white-space:nowrap}
-.conteggio.ok{background:#e3f7e8;color:#1c7a3a}
-.conteggio.over{background:#fde8e8;color:#b02020}
-.btn-pdf{border:1px solid var(--bordo);background:#fff;color:var(--blu);border-radius:8px;
-  padding:5px 10px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer;letter-spacing:.04em}
-.btn-pdf:hover{background:#eef3fc}
-.campi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:flex;flex-direction:column;gap:4px;font-size:.68rem;font-weight:700;
-  letter-spacing:.06em;text-transform:uppercase;color:#5a6b86}
-input,select{font:inherit;font-weight:500;text-transform:none;letter-spacing:0;color:var(--testo);
-  padding:8px 10px;border:1px solid var(--bordo);border-radius:8px;background:#fbfcff;width:100%}
-input:focus,select:focus{outline:2px solid #b9cdf0;border-color:var(--blu)}
-.convocati{list-style:none;margin:14px 0 0;padding:12px 0 0;border-top:1px dashed var(--bordo);
-  display:flex;flex-direction:column;gap:6px}
-.convocati li{display:flex;align-items:center;gap:8px;font-size:.85rem}
-.mini-foto{width:26px;height:26px;border-radius:50%;background:#e8eefb;color:var(--blu);
-  display:grid;place-items:center;font-size:.65rem;font-weight:800;overflow:hidden;flex:0 0 26px}
-.mini-foto img{width:100%;height:100%;object-fit:cover}
-.mini-nome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mini-x{border:0;background:transparent;color:#b02020;cursor:pointer;font-size:.9rem;padding:2px 6px}
-.vuoto{color:var(--muto);font-style:italic;font-size:.8rem}
-.barra-rosa{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.barra-rosa input[type=search]{max-width:300px}
-.btn-secondario{margin-left:auto;background:#fff;border:1px solid var(--bordo);border-radius:9px;
-  padding:8px 12px;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;color:#3a4a63}
-#lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
-.giocatore{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--bordo);
-  border-radius:12px;padding:10px}
-.giocatore.conv{border-color:#9fc0ee;box-shadow:0 0 0 2px rgba(11,77,162,.12)}
-.foto{width:52px;height:52px;flex:0 0 52px;border-radius:50%;overflow:hidden;background:#e8eefb;
-  display:grid;place-items:center}
-.foto img{width:100%;height:100%;object-fit:cover}
-.iniziali{font-weight:800;color:var(--blu)}
-.dati{flex:1;min-width:0;display:flex;flex-direction:column}
-.dati strong{font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dati small{color:var(--muto);font-size:.7rem}
-.azioni{display:flex;gap:4px}
-.azioni button{border:1px solid var(--bordo);background:#f7f9fe;border-radius:8px;padding:7px 8px;
-  font:inherit;font-size:.72rem;font-weight:800;color:#3a4a63;cursor:pointer;min-width:34px}
-.btn-sel.attivo{background:var(--blu);border-color:var(--blu);color:#fff}
-.btn-sel.p2.attivo{background:var(--giallo);border-color:var(--giallo);color:#16233a}
-.btn-del{color:#b02020}
-.form-giocatore{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;align-items:end}
-.form-giocatore .btn-aggiungi{background:var(--blu);color:#fff;border:0;border-radius:9px;
-  padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}
-.preview{display:flex;align-items:center;gap:8px}
-.preview img{width:52px;height:52px;object-fit:cover;border-radius:50%;border:2px solid var(--bordo)}
-@media (max-width:640px){ .campi{grid-template-columns:1fr} }
-
-/* ====== AREA DI STAMPA / PDF (nascosta a video) ====== */
-#stampa{display:none}
-
-@media print{
-  @page{ size:A4 portrait; margin:12mm; }
-  html,body{background:#fff !important; color:#000}
-  body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:12px }
-  header.top, main{ display:none !important }
-  #stampa{ display:block }
-
-  .print-sheet + .print-sheet{ break-before:page }
-  .print-sheet{ padding:0 }
-
-  .print-head{ display:flex; justify-content:space-between; align-items:flex-end;
-    border-bottom:3px solid #0b4da2; padding-bottom:8px; margin-bottom:12px }
-  .print-head h2{ margin:0; font-size:16pt; color:#0b4da2; text-transform:none; letter-spacing:0 }
-  .print-head p{ margin:2px 0 0; font-size:9pt; color:#555 }
-  .print-badge{ font-size:13pt; font-weight:800; color:#fff; background:#0b4da2;
-    padding:6px 16px; border-radius:8px; white-space:nowrap }
-
-  .print-info{ width:100%; border-collapse:collapse; margin-bottom:14px; font-size:10pt }
-  .print-info th{ text-align:left; color:#5a6b86; font-size:7.5pt; text-transform:uppercase;
-    letter-spacing:.06em; padding:5px 8px 5px 0; width:70px; vertical-align:top; font-weight:700 }
-  .print-info td{ padding:5px 14px 5px 0; font-weight:600; border-bottom:1px solid #e3e9f3 }
-  .print-muto{ color:#9aa8bd; font-weight:400 }
-
-  .print-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:6px }
-  .print-player{ display:flex; align-items:center; gap:8px; border:1px solid #c9d3e2;
-    border-radius:10px; padding:7px; break-inside:avoid }
-  .print-photo{ width:46px; height:46px; flex:0 0 46px; border-radius:50%; overflow:hidden;
-    background:#e8eefb; display:grid; place-items:center;
-    font-size:10pt; font-weight:800; color:#0b4da2 }
-  .print-photo img{ width:100%; height:100%; object-fit:cover }
-  .print-dati{ min-width:0 }
-  .print-dati strong{ display:block; font-size:9pt; line-height:1.15;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-  .print-dati small{ font-size:7pt; color:#5a6b86 }
-
-  .print-vuoto{ font-style:italic; color:#8a97ab; font-size:10pt; padding:12px 0;
-    grid-column:1 / -1 }
-  .print-foot{ margin-top:16px; border-top:1px solid #c9d3e2; padding-top:6px;
-    font-size:7.5pt; color:#8a97ab; display:flex; justify-content:space-between }
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink); font:16px/1.45 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px 120px;
 }
+.wrap{max-width:1040px;margin:0 auto}
+.head{border-top:6px solid var(--p1);padding-top:14px}
+.eyebrow{margin:0 0 6px;font:600 12px/1.2 var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font:700 clamp(36px,8vw,56px)/.95 var(--font-display);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+h2{margin:0;font:700 26px/1.1 var(--font-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.layout{display:grid;gap:16px;margin-top:20px}
+@media (min-width:900px){.layout{grid-template-columns:340px minmax(0,1fr);align-items:start}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+label,legend{display:block;margin:16px 0 6px;padding:0;font:600 12px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel h2+label,.panel h2+fieldset legend{margin-top:12px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+input[type=text],input[type=date],input[type=time],input:not([type]){
+  width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit;
+}
+input::placeholder{color:var(--muted);opacity:.8}
+:focus-visible{outline:2px solid var(--p1);outline-offset:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two>div{min-width:0}
+.game{margin-top:22px;padding-top:6px;border-top:1px solid var(--line)}
+.game h3{margin:12px 0 0;font:700 24px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.game.g1 h3{color:var(--p1)}
+.game.g2 h3{color:var(--p2)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--field)}
+.seg button{min-height:44px;min-width:0;border:0;background:transparent;color:var(--ink);font:600 14px/1.1 var(--font-body);cursor:pointer;padding:0 6px}
+.seg button+button{border-left:1px solid var(--line)}
+#tipo button[aria-checked="true"]{background:var(--ink);color:var(--bg)}
+.seg button[data-v="0"][aria-checked="true"]{background:var(--line);color:var(--ink)}
+.seg button[data-v="1"][aria-checked="true"]{background:var(--p1);color:var(--on-p1)}
+.seg button[data-v="2"][aria-checked="true"]{background:var(--p2);color:var(--on-p2)}
+.btn{min-height:46px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 15px/1 var(--font-body);cursor:pointer}
+.btn.primary{background:var(--p1);border-color:var(--p1);color:var(--on-p1)}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.wide{width:100%;margin-top:20px}
+.roster-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.hint{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:62ch}
+.list{list-style:none;margin:14px 0 0;padding:0}
+.row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;grid-template-areas:"av who edit" "seg seg seg";gap:10px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+@media (min-width:640px){.row{grid-template-columns:56px minmax(0,1fr) auto 250px;grid-template-areas:"av who edit seg"}}
+.row .avatar{grid-area:av}
+.who{grid-area:who;min-width:0;display:grid;gap:2px}
+.row .edit{grid-area:edit;min-height:40px;font-size:14px;padding:0 12px}
+.row .seg{grid-area:seg}
+.sn{font:700 22px/1.05 var(--font-display);letter-spacing:.03em;text-transform:uppercase;overflow-wrap:anywhere}
+.fn{font-size:15px;overflow-wrap:anywhere}
+.meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.avatar{position:relative;width:56px;height:70px;padding:0;border:2px solid var(--line);border-radius:8px;overflow:hidden;background:var(--field);color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar .ini{font:700 22px/1 var(--font-display);letter-spacing:.04em}
+.avatar .cam{position:absolute;right:2px;bottom:2px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.row[data-s="1"] .avatar{border-color:var(--p1)}
+.row[data-s="2"] .avatar{border-color:var(--p2)}
+.avatar.big{width:84px;height:105px}
+.avatar.big .ini{font-size:30px}
+.empty{padding:28px 8px;color:var(--muted);text-align:center}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.bar-inner{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.counts{display:flex;gap:14px;min-width:0}
+.c{display:grid;line-height:1;gap:3px}
+.c b{font:700 26px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.c span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.c.p1 b{color:var(--p1)}
+.c.p2 b{color:var(--p2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9;max-width:min(92vw,420px);padding:10px 14px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:14px;text-align:center}
+dialog{width:min(440px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:18px}
+dialog::backdrop{background:rgba(8,14,24,.55)}
+.photo-pick{display:flex;align-items:center;gap:14px;margin-top:14px}
+.photo-pick p{margin:0;color:var(--muted);font-size:14px}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px}
+.grow{flex:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-</head>
-<body>
 
-<header class="top">
-  <div>
-    <h1>U.S.D. Gotico Garibaldina – Formazioni</h1>
-    <p>Primi Calci 2019 · gestione convocati e partite</p>
+<div class="wrap">
+  <header class="head">
+    <p class="eyebrow">U.S.D. Gotico Garibaldina · Primi Calci 2019</p>
+    <h1>Formazioni</h1>
+  </header>
+
+  <main class="layout">
+    <section class="panel" aria-labelledby="h-gara">
+      <h2 id="h-gara">Le gare</h2>
+      <label for="m-data">Data</label>
+      <input id="m-data" type="date">
+      <div id="games"></div>
+      <button type="button" class="btn wide" id="reset">Nuova formazione</button>
+    </section>
+
+    <section class="panel" aria-labelledby="h-conv">
+      <div class="roster-head">
+        <h2 id="h-conv">Convocazioni</h2>
+        <button type="button" class="btn" id="add">Aggiungi giocatore</button>
+      </div>
+      <p class="hint">Per ogni bambino scegli Partita 1, Partita 2 oppure Fuori. Tocca la foto per caricarla dalla galleria o scattarla.</p>
+      <ul class="list" id="list"><li class="empty">Carico la rosa…</li></ul>
+    </section>
+  </main>
+</div>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="counts" aria-live="polite">
+      <div class="c p1"><b id="n1">0</b><span>Partita 1</span></div>
+      <div class="c p2"><b id="n2">0</b><span>Partita 2</span></div>
+      <div class="c"><b id="n0">0</b><span>Fuori</span></div>
+    </div>
+    <button type="button" class="btn primary" id="export" disabled>Esporta PDF</button>
   </div>
-  <button class="btn-stampa" id="btn-pdf-tutte" title="Esporta entrambe le partite in PDF">
-    📄 Esporta PDF
-  </button>
-</header>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="file" accept="image/*" hidden>
 
-<main>
-
-  <h2>Partite</h2>
-  <section class="partite">
-
-    <article class="card">
-      <div class="partita-head">
-        <h3>Partita 1</h3>
-        <div class="head-dx">
-          <span class="conteggio" id="count1">0/5 giocatori</span>
-          <button class="btn-pdf" data-pdf="1" title="Esporta in PDF solo la Partita 1">PDF</button>
-        </div>
-      </div>
-      <div class="campi">
-        <label>Avversario<input id="m1-avversario" type="text" placeholder="Es. Pol. Sala"></label>
-        <label>Tipo<select id="m1-tipo">
-          <option>Amichevole</option><option>Campionato</option><option>Torneo</option>
-        </select></label>
-        <label>Data<input id="m1-data" type="date"></label>
-        <label>Campo<input id="m1-campo" type="text" placeholder="Es. Campo Comunale"></label>
-        <label>Ritrovo<input id="m1-ritrovo" type="time"></label>
-        <label>Inizio partita<input id="m1-inizio" type="time"></label>
-      </div>
-      <ul class="convocati" id="conv1"></ul>
-    </article>
-
-    <article class="card">
-      <div class="partita-head">
-        <h3>Partita 2</h3>
-        <div class="head-dx">
-          <span class="conteggio" id="count2">0/5 giocatori</span>
-          <button class="btn-pdf" data-pdf="2" title="Esporta in PDF solo la Partita 2">PDF</button>
-        </div>
-      </div>
-      <div class="campi">
-        <label>Avversario<input id="m2-avversario" type="text" placeholder="Es. Pol. Sala"></label>
-        <label>Tipo<select id="m2-tipo">
-          <option>Amichevole</option><option>Campionato</option><option>Torneo</option>
-        </select></label>
-        <label>Data<input id="m2-data" type="date"></label>
-        <label>Campo<input id="m2-campo" type="text" placeholder="Es. Campo Comunale"></label>
-        <label>Ritrovo<input id="m2-ritrovo" type="time"></label>
-        <label>Inizio partita<input id="m2-inizio" type="time"></label>
-      </div>
-      <ul class="convocati" id="conv2"></ul>
-    </article>
-
-  </section>
-
-  <h2>Rosa – assegna alla partita</h2>
-  <div class="barra-rosa">
-    <input type="search" id="cerca" placeholder="Cerca giocatore…">
-    <button class="btn-secondario" id="azzera">Azzera convocazioni</button>
-  </div>
-  <div id="lista"></div>
-
-  <h2>Aggiungi giocatore</h2>
-  <form class="card form-giocatore" id="form-nuovo">
-    <label>Cognome<input name="cognome" required></label>
-    <label>Nome<input name="nome" required></label>
-    <label>Cartellino<input name="cartellino" inputmode="numeric"></label>
-    <label>Data di nascita<input type="date" name="nascita"></label>
-    <label>Foto<input type="file" id="foto-nuovo" accept="image/*"></label>
-    <div class="preview" id="preview-nuovo"></div>
-    <button class="btn-aggiungi" type="submit">+ Aggiungi</button>
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form id="pform">
+    <h2 id="dlg-title">Nuovo giocatore</h2>
+    <div class="photo-pick">
+      <button type="button" class="avatar big" id="dlg-photo" aria-label="Scegli la foto"></button>
+      <p>Foto del giocatore. Tocca per sceglierla o scattarla.</p>
+    </div>
+    <label for="f-cognome">Cognome</label>
+    <input id="f-cognome" type="text" autocomplete="off" required>
+    <label for="f-nome">Nome</label>
+    <input id="f-nome" type="text" autocomplete="off" required>
+    <label for="f-cart">N. cartellino</label>
+    <input id="f-cart" type="text" inputmode="numeric" autocomplete="off">
+    <label for="f-nascita">Data di nascita</label>
+    <input id="f-nascita" type="date">
+    <div class="actions">
+      <button type="button" class="btn danger" id="del" hidden>Elimina</button>
+      <span class="grow"></span>
+      <button type="button" class="btn" id="cancel">Annulla</button>
+      <button type="submit" class="btn primary">Salva</button>
+    </div>
   </form>
+</dialog>
 
-</main>
-
-<!-- Contenitore usato solo per la stampa / esportazione PDF -->
-<section id="stampa" aria-hidden="true"></section>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const STORAGE_KEY = 'gotico-formazioni-v1';
+(function(){
+'use strict';
 
-/* Rosa precaricata dal referto */
-const BASE_PLAYERS = [
-  ['Barilli','Alessandro','4738945','2019-06-17'],
-  ['Benussi','Giovanni','4653837','2019-12-12'],
-  ['Chilikov','Alex Borislavov','4910951','2019-11-13'],
-  ['Coello Ganan','Santiago','4796825','2019-01-30'],
-  ["D'Angola",'Filippo','4863145','2019-01-01'],
-  ['Elmadhi','Daniel','4731652','2019-06-13'],
-  ['Lusha','Xhuljo','4930989','2019-07-21'],
-  ['Mirci','Leonardo','4941943','2019-11-07'],
-  ["Orrù",'Riccardo','4559310','2019-09-04'],
-  ['Rizzello','Ian','4964410','2019-03-20'],
-  ['Ronda','Filippo','4465605','2019-07-01'],
-  ['Tuccillo','Mattia','4964426','2019-06-20'],
-  ['Grassi','Emanuele','4717633','2020-05-30']
-];
+var CLUB='U.S.D. Gotico Garibaldina', SHORT='Gotico Garibaldina', CAT='Primi Calci 2019';
+var TECNICO='Canepari Luigi', DIRIGENTE='Calicchio Marco';
+var TIPI={amichevole:'Amichevole',campionato:'Campionato',torneo:'Torneo'};
 
-const MATCH_FIELDS = ['avversario','tipo','data','campo','ritrovo','inizio'];
-let state;
-let pendingPhoto = null;
-
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => (
-  {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-));
-
-function emptyMatch(){
-  return {avversario:'', tipo:'Campionato', data:'', campo:'', ritrovo:'', inizio:''};
-}
-
-function defaultState(){
-  return {
-    players: BASE_PLAYERS.map(([cognome,nome,cartellino,nascita],i) => ({
-      id:'b'+i, cognome, nome, cartellino, nascita, foto:null, partita:0
-    })),
-    matches: {1: emptyMatch(), 2: emptyMatch()}
-  };
-}
-
-function load(){
-  let s = null;
-  try { s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){}
-  if(!s || !Array.isArray(s.players)) s = defaultState();
-  if(!s.matches) s.matches = {1: emptyMatch(), 2: emptyMatch()};
-  [1,2].forEach(n => { s.matches[n] = Object.assign(emptyMatch(), s.matches[n] || {}); });
-  state = s;
-}
-
-function save(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch(e){ alert('Memoria del browser piena: riduci numero/dimensione delle foto.'); }
-}
-
-/* Ridimensiona la foto e la converte in base64 (così resta salvata nel browser) */
-function fileToDataURL(file, max){
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const scale = Math.min(1, max / Math.max(img.width, img.height));
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      resolve(c.toDataURL('image/jpeg', 0.8));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('immagine non valida')); };
-    img.src = url;
-  });
-}
-
-/* ---------- Partite ---------- */
-function bindMatchInputs(){
-  [1,2].forEach(n => {
-    MATCH_FIELDS.forEach(k => {
-      const el = document.getElementById(`m${n}-${k}`);
-      el.value = state.matches[n][k] || (k === 'tipo' ? 'Campionato' : '');
-      const upd = () => { state.matches[n][k] = el.value; save(); };
-      el.addEventListener('input', upd);
-      el.addEventListener('change', upd);
-    });
-  });
-}
-
-/* ---------- Rosa ---------- */
-function renderPlayers(){
-  const q = (document.getElementById('cerca').value || '').trim().toLowerCase();
-  const players = [...state.players]
-    .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'))
-    .filter(p => !q || (p.cognome+' '+p.nome).toLowerCase().includes(q));
-
-  const box = document.getElementById('lista');
-  if(!players.length){
-    box.innerHTML = '<p class="vuoto">Nessun giocatore trovato.</p>';
-    return;
+/*PDF_START*/
+function buildPdf(JsPDF,d){
+  var doc=new JsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+  var W=210,H=297,M=12,CW=W-2*M,LIMIT=H-22;
+  var NAVY=[15,27,45],GREY=[86,101,121],LINE=[211,219,230],SOFT=[238,242,247],BLUE=[0,150,214],C1=[10,116,181],C2=[181,106,0],WHITE=[255,255,255];
+  var y=0;
+  function fill(c){doc.setFillColor(c[0],c[1],c[2]);}
+  function ink(c){doc.setTextColor(c[0],c[1],c[2]);}
+  function stroke(c){doc.setDrawColor(c[0],c[1],c[2]);}
+  function font(style,size){doc.setFont('helvetica',style);doc.setFontSize(size);}
+  function dmy(iso){if(!iso)return '';var p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
+  function longDate(iso){
+    if(!iso)return '-';
+    var p=iso.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);
+    var s=dt.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    return s.charAt(0).toUpperCase()+s.slice(1);
   }
-  box.innerHTML = players.map(p => {
-    const foto = p.foto
-      ? `<img src="${p.foto}" alt="Foto ${esc(p.cognome)}">`
-      : `<span class="iniziali">${esc((p.cognome[0]||'') + (p.nome[0]||''))}</span>`;
-    const data = p.nascita ? p.nascita.split('-').reverse().join('/') : '—';
-    return `<div class="giocatore ${p.partita ? 'conv' : ''}">
-      <div class="foto">${foto}</div>
-      <div class="dati">
-        <strong>${esc(p.cognome)} ${esc(p.nome)}</strong>
-        <small>${esc(data)} · cartellino ${esc(p.cartellino || '—')}</small>
-      </div>
-      <div class="azioni">
-        <button class="btn-sel ${p.partita===1?'attivo':''}" data-id="${p.id}" data-partita="1" title="Partita 1">P1</button>
-        <button class="btn-sel p2 ${p.partita===2?'attivo':''}" data-id="${p.id}" data-partita="2" title="Partita 2">P2</button>
-        <button class="btn-foto" data-foto="${p.id}" title="Carica / cambia foto">📷</button>
-        <button class="btn-del" data-del="${p.id}" title="Elimina giocatore">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderMatches(){
-  [1,2].forEach(n => {
-    const players = state.players
-      .filter(p => p.partita === n)
-      .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'));
-
-    const ul = document.getElementById('conv'+n);
-    ul.innerHTML = players.length
-      ? players.map(p => `<li>
-          <span class="mini-foto">${p.foto
-            ? `<img src="${p.foto}" alt="">`
-            : esc((p.cognome[0]||'') + (p.nome[0]||''))}</span>
-          <span class="mini-nome">${esc(p.cognome)} ${esc(p.nome)}</span>
-          <button class="mini-x" data-remove="${p.id}" title="Togli dalla partita">✕</button>
-        </li>`).join('')
-      : '<li class="vuoto">Nessun convocato</li>';
-
-    const badge = document.getElementById('count'+n);
-    badge.textContent = `${players.length}/5 giocatori`;
-    badge.className = 'conteggio' + (players.length === 5 ? ' ok' : (players.length > 5 ? ' over' : ''));
-  });
-}
-
-function renderAll(){ renderPlayers(); renderMatches(); }
-
-/* ---------- Foto di un giocatore esistente ---------- */
-function pickPhoto(id){
-  const inp = document.createElement('input');
-  inp.type = 'file';
-  inp.accept = 'image/*';
-  inp.onchange = async () => {
-    const file = inp.files && inp.files[0];
-    if(!file) return;
-    try{
-      const url = await fileToDataURL(file, 320);
-      const p = state.players.find(x => x.id === id);
-      if(!p) return;
-      p.foto = url;
-      save(); renderAll();
-    }catch(e){ alert("Impossibile leggere l'immagine."); }
-  };
-  inp.click();
-}
-
-/* ---------- Esportazione PDF ---------- */
-function sheetHTML(n){
-  const m = state.matches[n];
-  const players = state.players
-    .filter(p => p.partita === n)
-    .sort((a,b) => (a.cognome+' '+a.nome).localeCompare(b.cognome+' '+b.nome,'it'));
-
-  const val = v => (v && String(v).trim()) ? esc(v) : '<span class="print-muto">—</span>';
-  const dataIt = m.data
-    ? esc(m.data.split('-').reverse().join('/'))
-    : '<span class="print-muto">—</span>';
-
-  const grid = players.length ? players.map(p => {
-    const foto = p.foto
-      ? `<img src="${p.foto}" alt="">`
-      : esc((p.cognome[0]||'') + (p.nome[0]||''));
-    const nasc = p.nascita ? p.nascita.split('-').reverse().join('/') : '—';
-    return `<div class="print-player">
-      <div class="print-photo">${foto}</div>
-      <div class="print-dati">
-        <strong>${esc(p.cognome)} ${esc(p.nome)}</strong>
-        <small>${esc(nasc)}${p.cartellino ? ' · cart. ' + esc(p.cartellino) : ''}</small>
-      </div>
-    </div>`;
-  }).join('') : '<p class="print-vuoto">Nessun convocato</p>';
-
-  return `<section class="print-sheet">
-    <div class="print-head">
-      <div>
-        <h2>U.S.D. Gotico Garibaldina</h2>
-        <p>Primi Calci 2019 · Formazione</p>
-      </div>
-      <div class="print-badge">Partita ${n}</div>
-    </div>
-
-    <table class="print-info">
-      <tr>
-        <th>Avversario</th><td>${val(m.avversario)}</td>
-        <th>Tipo</th><td>${val(m.tipo)}</td>
-      </tr>
-      <tr>
-        <th>Data</th><td>${dataIt}</td>
-        <th>Campo</th><td>${val(m.campo)}</td>
-      </tr>
-      <tr>
-        <th>Ritrovo</th><td>${val(m.ritrovo)}</td>
-        <th>Inizio</th><td>${val(m.inizio)}</td>
-      </tr>
-    </table>
-
-    <div class="print-grid">${grid}</div>
-
-    <div class="print-foot">
-      <span>Convocati: ${players.length}</span>
-      <span>Generato il ${new Date().toLocaleDateString('it-IT')}</span>
-    </div>
-  </section>`;
-}
-
-function renderStampa(lista){
-  document.getElementById('stampa').innerHTML = lista.map(sheetHTML).join('');
-}
-
-async function esportaPDF(quale){
-  renderStampa(quale ? [quale] : [1,2]);
-  const box = document.getElementById('stampa');
-  /* attende che tutte le foto siano pronte prima di aprire la stampa */
-  await Promise.all([...box.querySelectorAll('img')].map(img =>
-    img.complete ? Promise.resolve()
-                 : new Promise(r => { img.onload = r; img.onerror = r; })
-  ));
-  window.print();   /* nel dialogo scegliere "Salva come PDF" */
-}
-
-/* Se l'utente stampa con Ctrl+P senza aver cliccato il pulsante, genero entrambe le partite */
-window.addEventListener('beforeprint', () => {
-  if(!document.getElementById('stampa').innerHTML.trim()) renderStampa([1,2]);
-});
-window.addEventListener('afterprint', () => {
-  document.getElementById('stampa').innerHTML = '';
-});
-
-/* ---------- Click delegati ---------- */
-document.addEventListener('click', e => {
-  const sel = e.target.closest('[data-partita]');
-  if(sel){
-    const p = state.players.find(x => x.id === sel.dataset.id);
-    const n = Number(sel.dataset.partita);
-    if(p){ p.partita = (p.partita === n) ? 0 : n; save(); renderAll(); }
-    return;
-  }
-  const rm = e.target.closest('[data-remove]');
-  if(rm){
-    const p = state.players.find(x => x.id === rm.dataset.remove);
-    if(p){ p.partita = 0; save(); renderAll(); }
-    return;
-  }
-  const f = e.target.closest('[data-foto]');
-  if(f){ pickPhoto(f.dataset.foto); return; }
-  const d = e.target.closest('[data-del]');
-  if(d){
-    const p = state.players.find(x => x.id === d.dataset.del);
-    if(p && confirm(`Eliminare ${p.cognome} ${p.nome} dalla rosa?`)){
-      state.players = state.players.filter(x => x.id !== p.id);
-      save(); renderAll();
+  function initials(p){return ((p.cognome||'?').charAt(0)+(p.nome||'').charAt(0)).toUpperCase();}
+  function topBand(full){
+    fill(BLUE);doc.rect(0,0,W,full?14:8,'F');ink(WHITE);
+    if(full){
+      font('bold',11);doc.text(d.club.toUpperCase(),M,9.3);
+      font('bold',10);doc.text(d.categoria.toUpperCase(),W-M,9.3,{align:'right'});
+    }else{
+      font('bold',7.5);doc.text(d.club.toUpperCase()+' - FORMAZIONE',M,5.4);
     }
   }
+
+  topBand(true);
+  font('bold',27);ink(NAVY);doc.text('FORMAZIONE',M,30);
+  font('bold',6.5);ink(GREY);doc.text('DATA',W-M,23.6,{align:'right'});
+  font('bold',12.5);ink(NAVY);doc.text(longDate(d.data),W-M,29.5,{align:'right'});
+  y=40;
+
+  var PERROW=6,GAP=2.4,CWD=(CW-GAP*(PERROW-1))/PERROW,PW=CWD-0.8,PH=PW*1.25,TXT=25,CH=PH+0.4+TXT,ROWH=CH+3;
+  function secHead(title,color,n,cont){
+    fill(color);doc.roundedRect(M,y,CW,8,1.2,1.2,'F');
+    ink(WHITE);font('bold',10.5);doc.text(title+(cont?' (segue)':''),M+4,y+5.5);
+    font('normal',8.5);doc.text(n+(n===1?' giocatore':' giocatori'),W-M-4,y+5.4,{align:'right'});
+    y+=11;
+  }
+  function strip(info,color){
+    var h=14,x=M+4,rx=W-M-4;
+    fill(SOFT);doc.roundedRect(M,y,CW,h,2,2,'F');
+    if(info.tipoLabel){
+      var lab=info.tipoLabel.toUpperCase();
+      font('bold',7.5);
+      var tw=doc.getTextWidth(lab)+7;
+      fill(color);doc.roundedRect(x,y+3.5,tw,7,3.5,3.5,'F');
+      ink(WHITE);doc.text(lab,x+tw/2,y+8.3,{align:'center'});
+      x+=tw+4;
+    }
+    var txt=info.avversario?'vs '+info.avversario:'Avversario da definire';
+    font(info.avversario?'bold':'normal',10.5);ink(info.avversario?NAVY:GREY);
+    doc.text(doc.splitTextToSize(txt,rx-60-x)[0]||'',x,y+8.7);
+    font('bold',6.3);ink(GREY);
+    doc.text('RITROVO',rx-56,y+5);doc.text('INIZIO PARTITA',rx-26,y+5);
+    font('bold',12);ink(NAVY);
+    doc.text(info.ritrovo||'-',rx-56,y+11.4);doc.text(info.inizio||'-',rx-26,y+11.4);
+    y+=h+4;
+  }
+  function newPage(){doc.addPage();topBand(false);y=16;}
+  function card(p,x,cy){
+    stroke(LINE);doc.setLineWidth(0.25);doc.roundedRect(x,cy,CWD,CH,1.5,1.5,'S');
+    var px=x+0.4,py=cy+0.4,ok=false;
+    if(p.photo){try{doc.addImage(p.photo,'JPEG',px,py,PW,PH);ok=true;}catch(e){}}
+    if(!ok){
+      fill(SOFT);doc.rect(px,py,PW,PH,'F');
+      font('bold',20);ink(GREY);doc.text(initials(p),x+CWD/2,py+PH/2+3,{align:'center'});
+    }
+    var cx=x+CWD/2,ty=py+PH+4.2,mw=CWD-3;
+    font('bold',7.6);ink(NAVY);
+    var sl=doc.splitTextToSize((p.cognome||'').toUpperCase(),mw).slice(0,2);
+    sl.forEach(function(t,i){doc.text(t,cx,ty+i*3.1,{align:'center'});});
+    ty+=sl.length*3.1;
+    font('normal',7.6);
+    var nl=doc.splitTextToSize(p.nome||'',mw).slice(0,2);
+    nl.forEach(function(t,i){doc.text(t,cx,ty+i*3.1,{align:'center'});});
+    font('normal',6.3);ink(GREY);
+    if(p.cartellino)doc.text('Cart. '+p.cartellino,cx,cy+CH-6.4,{align:'center'});
+    if(p.nascita)doc.text(dmy(p.nascita),cx,cy+CH-3.3,{align:'center'});
+  }
+  function section(title,color,list,info){
+    if(!list.length)return;
+    if(y+11+18+ROWH>LIMIT)newPage();
+    secHead(title,color,list.length,false);
+    strip(info,color);
+    list.forEach(function(p,i){
+      var col=i%PERROW;
+      if(col===0&&i>0){
+        y+=ROWH;
+        if(y+ROWH>LIMIT){newPage();secHead(title,color,list.length,true);}
+      }
+      card(p,M+col*(CWD+GAP),y);
+    });
+    y+=ROWH+5;
+  }
+  section('PARTITA 1',C1,d.g1,d.i1);
+  section('PARTITA 2',C2,d.g2,d.i2);
+
+  var n=doc.getNumberOfPages();
+  for(var i=1;i<=n;i++){
+    doc.setPage(i);
+    fill(BLUE);doc.rect(0,H-6,W,6,'F');
+    stroke(LINE);doc.setLineWidth(0.25);doc.line(M,H-17,W-M,H-17);
+    font('bold',8);ink(NAVY);doc.text('TECNICO',M,H-11.5);
+    font('normal',8.5);doc.text(d.tecnico,M+16,H-11.5);
+    font('bold',8);doc.text('DIRIGENTE',M+70,H-11.5);
+    font('normal',8.5);doc.text(d.dirigente,M+89,H-11.5);
+    font('normal',8);ink(GREY);doc.text('Pagina '+i+' di '+n,W-M,H-11.5,{align:'right'});
+  }
+  return doc.output('arraybuffer');
+}
+/*PDF_END*/
+
+var $=function(id){return document.getElementById(id);};
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+var CAM='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+
+var db=null,dl=null,playersRef=null,matchRef=null;
+var players=[],loaded=false,unavailable=false,slow=false,loadError=null;
+var match=blankMatch();
+var dirty=false,ver=0,saveTimer=null,saving=Promise.resolve();
+var pick=null,editId=null,dlgPhoto='';
+
+function blankGame(){return {tipo:'',avversario:'',ritrovo:'',inizio:''};}
+function blankMatch(){return {data:'',g:{1:blankGame(),2:blankGame()},sel:{}};}
+function normMatch(d){
+  var m=blankMatch();if(!d)return m;
+  m.data=d.data||'';m.sel=Object.assign({},d.sel||{});
+  var old={tipo:d.tipo,avversario:d.avversario,ritrovo:d.ritrovo,inizio:d.inizio};
+  [1,2].forEach(function(n){
+    var s=(d.g&&d.g[n])||old;
+    m.g[n]={tipo:s.tipo||'',avversario:s.avversario||'',ritrovo:s.ritrovo||'',inizio:s.inizio||''};
+  });
+  return m;
+}
+function info(n){var g=match.g[n];return {tipoLabel:TIPI[g.tipo]||'',avversario:(g.avversario||'').trim(),ritrovo:g.ritrovo,inizio:g.inizio};}
+function titleCase(s){return s.trim().replace(/\s+/g,' ').toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu,function(x,a,b){return a+b.toUpperCase();});}
+function dmy(iso){if(!iso)return '';var p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
+function initials(p){return ((p.cognome||'?').charAt(0)+(p.nome||'').charAt(0)).toUpperCase();}
+function slug(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function errText(err){
+  var c=err&&err.code;
+  if(c==='quota_exceeded')return 'Spazio esaurito: elimina qualche giocatore o foto e riprova.';
+  if(c==='invalid_argument'||c==='revoked')return 'Non hai il permesso di modificare questi dati.';
+  return 'Operazione non riuscita. Riprova tra un momento.';
+}
+
+var toastTimer=null;
+function toast(msg){
+  var t=$('toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;},3200);
+}
+function twoStep(btn,armedLabel,action){
+  var base=btn.textContent,timer=null;
+  btn.addEventListener('click',function(){
+    if(btn.dataset.arm!=='1'){
+      btn.dataset.arm='1';btn.textContent=armedLabel;
+      timer=setTimeout(function(){btn.dataset.arm='0';btn.textContent=base;},4000);
+      return;
+    }
+    clearTimeout(timer);btn.dataset.arm='0';btn.textContent=base;action();
+  });
+}
+
+/* ---------- gara ---------- */
+function setField(id,v){var i=$(id);if(document.activeElement!==i&&i.value!==v)i.value=v;}
+function fillMatch(){
+  setField('m-data',match.data||'');
+  [1,2].forEach(function(n){
+    var g=match.g[n];
+    setField('m-avv-'+n,g.avversario||'');setField('m-rit-'+n,g.ritrovo||'');setField('m-ini-'+n,g.inizio||'');
+    document.querySelectorAll('#tipo-'+n+' button').forEach(function(b){b.setAttribute('aria-checked',String(b.dataset.v===g.tipo));});
+  });
+}
+$('games').innerHTML=[1,2].map(function(n){return ''+
+  '<section class="game g'+n+'"><h3>Partita '+n+'</h3>'+
+  '<fieldset><legend>Tipo di gara</legend><div class="seg" id="tipo-'+n+'" role="radiogroup" aria-label="Tipo di gara, partita '+n+'">'+
+  Object.keys(TIPI).map(function(k){return '<button type="button" role="radio" aria-checked="false" data-v="'+k+'">'+TIPI[k]+'</button>';}).join('')+
+  '</div></fieldset>'+
+  '<label for="m-avv-'+n+'">Squadra avversaria</label><input id="m-avv-'+n+'" type="text" autocomplete="off" placeholder="Nome della squadra">'+
+  '<div class="two"><div><label for="m-rit-'+n+'">Ritrovo</label><input id="m-rit-'+n+'" type="time"></div>'+
+  '<div><label for="m-ini-'+n+'">Inizio partita</label><input id="m-ini-'+n+'" type="time"></div></div>'+
+  '</section>';}).join('');
+$('m-data').addEventListener('input',function(){match.data=this.value;scheduleSave();});
+[1,2].forEach(function(n){
+  [['m-avv-','avversario'],['m-rit-','ritrovo'],['m-ini-','inizio']].forEach(function(f){
+    $(f[0]+n).addEventListener('input',function(){match.g[n][f[1]]=this.value;scheduleSave();});
+  });
+  $('tipo-'+n).addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var g=match.g[n];g.tipo=(g.tipo===b.dataset.v)?'':b.dataset.v;
+    fillMatch();scheduleSave();
+  });
+});
+twoStep($('reset'),'Tocca ancora per azzerare',function(){
+  match=blankMatch();fillMatch();refreshSel();scheduleSave();toast('Formazione azzerata');
 });
 
-document.getElementById('cerca').addEventListener('input', renderPlayers);
+function scheduleSave(){
+  if(!matchRef)return;
+  dirty=true;ver++;clearTimeout(saveTimer);saveTimer=setTimeout(flush,500);
+}
+function flush(){
+  saveTimer=null;if(!matchRef)return;
+  var v=ver,payload=JSON.parse(JSON.stringify(match));
+  saving=saving.then(function(){return matchRef.set(payload);}).then(function(){
+    if(v===ver)dirty=false;
+  },function(err){
+    if(v===ver)dirty=false;toast(errText(err));
+  });
+}
 
-document.getElementById('azzera').addEventListener('click', () => {
-  if(!confirm('Togliere tutti i giocatori dalle due partite?')) return;
-  state.players.forEach(p => p.partita = 0);
-  save(); renderAll();
-});
-
-/* Pulsanti PDF */
-document.getElementById('btn-pdf-tutte').addEventListener('click', () => esportaPDF());
-document.querySelectorAll('[data-pdf]').forEach(b =>
-  b.addEventListener('click', () => esportaPDF(Number(b.dataset.pdf)))
-);
-
-/* ---------- Nuovo giocatore ---------- */
-const form = document.getElementById('form-nuovo');
-const fotoNuovo = document.getElementById('foto-nuovo');
-const preview = document.getElementById('preview-nuovo');
-
-fotoNuovo.addEventListener('change', async () => {
-  const file = fotoNuovo.files && fotoNuovo.files[0];
-  if(!file){ pendingPhoto = null; preview.innerHTML = ''; return; }
-  try{
-    pendingPhoto = await fileToDataURL(file, 320);
-    preview.innerHTML = `<img src="${pendingPhoto}" alt="Anteprima">`;
-  }catch(e){
-    alert('Immagine non valida.');
-    pendingPhoto = null;
-    preview.innerHTML = '';
+/* ---------- rosa ---------- */
+function paintAvatar(btn,photo,ini){
+  btn.textContent='';
+  if(photo){var im=document.createElement('img');im.src=photo;im.alt='';btn.appendChild(im);}
+  else btn.appendChild(el('span','ini',ini));
+  var c=el('span','cam');c.innerHTML=CAM;btn.appendChild(c);
+}
+function rowFor(p){
+  var li=el('li','row');li.dataset.id=p.id;
+  var full=p.nome+' '+p.cognome;
+  var av=el('button','avatar');av.type='button';av.setAttribute('aria-label','Foto di '+full+': cambia');
+  paintAvatar(av,p.photo,initials(p));
+  var who=el('div','who');
+  who.appendChild(el('strong','sn',p.cognome));
+  who.appendChild(el('span','fn',p.nome));
+  var meta=[];if(p.cartellino)meta.push('Cart. '+p.cartellino);if(p.nascita)meta.push(dmy(p.nascita));
+  if(meta.length)who.appendChild(el('span','meta',meta.join(' · ')));
+  var ed=el('button','btn edit','Modifica');ed.type='button';ed.setAttribute('aria-label','Modifica '+full);
+  var seg=el('div','seg');seg.setAttribute('role','radiogroup');seg.setAttribute('aria-label','Convocazione di '+full);
+  [['0','Fuori'],['1','Partita 1'],['2','Partita 2']].forEach(function(o){
+    var b=el('button',null,o[1]);b.type='button';b.dataset.v=o[0];b.setAttribute('role','radio');b.setAttribute('aria-checked','false');seg.appendChild(b);
+  });
+  li.appendChild(av);li.appendChild(who);li.appendChild(ed);li.appendChild(seg);
+  return li;
+}
+function emptyLi(text){return el('li','empty',text);}
+function buildList(){
+  var ul=$('list');ul.textContent='';
+  if(unavailable){ul.appendChild(emptyLi('Il salvataggio non è disponibile in questa vista. Apri la pagina da Claude per usare e salvare la rosa.'));refreshSel();return;}
+  if(loadError){ul.appendChild(emptyLi('Non riesco a leggere la rosa. '+errText(loadError)));refreshSel();return;}
+  if(!loaded){ul.appendChild(emptyLi(slow?'La rosa non risponde ancora. Controlla la connessione: appena torna, compare qui.':'Carico la rosa…'));refreshSel();return;}
+  if(!players.length){ul.appendChild(emptyLi('Nessun giocatore in rosa. Tocca “Aggiungi giocatore” per inserire il primo.'));refreshSel();return;}
+  players.forEach(function(p){ul.appendChild(rowFor(p));});
+  refreshSel();
+}
+function refreshSel(){
+  var c1=0,c2=0;
+  document.querySelectorAll('#list .row').forEach(function(li){
+    var s=String(match.sel[li.dataset.id]||0);
+    li.dataset.s=s;
+    li.querySelectorAll('.seg button').forEach(function(b){b.setAttribute('aria-checked',String(b.dataset.v===s));});
+  });
+  players.forEach(function(p){var v=match.sel[p.id];if(v===1)c1++;else if(v===2)c2++;});
+  $('n1').textContent=c1;$('n2').textContent=c2;$('n0').textContent=Math.max(0,players.length-c1-c2);
+  $('export').disabled=(c1+c2===0);
+}
+$('list').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var li=b.closest('.row');if(!li)return;
+  var id=li.dataset.id;
+  if(b.dataset.v!==undefined){
+    var v=+b.dataset.v;
+    if(v)match.sel[id]=v;else delete match.sel[id];
+    refreshSel();scheduleSave();
+  }else if(b.classList.contains('avatar')){
+    pick={type:'row',id:id};$('file').click();
+  }else if(b.classList.contains('edit')){
+    openDlg(id);
   }
 });
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const fd = new FormData(form);
-  const cognome = String(fd.get('cognome') || '').trim();
-  const nome = String(fd.get('nome') || '').trim();
-  if(!cognome || !nome) return;
-
-  state.players.push({
-    id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-    cognome, nome,
-    cartellino: String(fd.get('cartellino') || '').trim(),
-    nascita: String(fd.get('nascita') || ''),
-    foto: pendingPhoto,
-    partita: 0
+/* ---------- foto ---------- */
+function processPhoto(file){
+  return new Promise(function(resolve,reject){
+    var fr=new FileReader();
+    fr.onerror=function(){reject(new Error('read'));};
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){reject(new Error('img'));};
+      img.onload=function(){
+        var TW=240,TH=300,R=TW/TH,iw=img.naturalWidth,ih=img.naturalHeight,sx,sy,sw,sh;
+        if(iw/ih>R){sh=ih;sw=ih*R;sx=(iw-sw)/2;sy=0;}
+        else{sw=iw;sh=iw/R;sx=0;sy=(ih-sh)*0.3;}
+        var cv=document.createElement('canvas');cv.width=TW;cv.height=TH;
+        var cx=cv.getContext('2d');cx.imageSmoothingQuality='high';
+        cx.fillStyle='#fff';cx.fillRect(0,0,TW,TH);
+        cx.drawImage(img,sx,sy,sw,sh,0,0,TW,TH);
+        resolve(cv.toDataURL('image/jpeg',0.82));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
   });
-  save();
-  form.reset();
-  pendingPhoto = null;
-  preview.innerHTML = '';
-  renderAll();
+}
+$('file').addEventListener('change',function(){
+  var f=this.files&&this.files[0];this.value='';
+  if(!f||!pick)return;
+  var t=pick;
+  processPhoto(f).then(function(url){
+    if(t.type==='dlg'){dlgPhoto=url;paintDlgPhoto();return;}
+    if(!playersRef)return;
+    return playersRef.doc(t.id).update({photo:url}).then(function(){toast('Foto salvata');});
+  }).catch(function(err){
+    toast(err&&err.code?errText(err):'Non riesco a leggere questa foto. Prova con un’altra.');
+  });
 });
 
-/* ---------- Avvio ---------- */
-load();
-bindMatchInputs();
-renderAll();
+/* ---------- scheda giocatore ---------- */
+function paintDlgPhoto(){
+  var cog=$('f-cognome').value,nom=$('f-nome').value;
+  paintAvatar($('dlg-photo'),dlgPhoto,((cog||'?').charAt(0)+(nom||'').charAt(0)).toUpperCase());
+}
+function openDlg(id){
+  var p=id?players.filter(function(x){return x.id===id;})[0]:null;
+  editId=p?p.id:null;
+  $('dlg-title').textContent=p?'Modifica giocatore':'Nuovo giocatore';
+  $('f-cognome').value=p?p.cognome:'';
+  $('f-nome').value=p?p.nome:'';
+  $('f-cart').value=p?(p.cartellino||''):'';
+  $('f-nascita').value=p?(p.nascita||''):'';
+  dlgPhoto=p?(p.photo||''):'';
+  $('del').hidden=!p;
+  paintDlgPhoto();
+  $('dlg').showModal();
+}
+$('add').addEventListener('click',function(){
+  if(!playersRef){toast('Il salvataggio non è disponibile in questa vista.');return;}
+  openDlg(null);
+});
+$('dlg-photo').addEventListener('click',function(){pick={type:'dlg'};$('file').click();});
+$('cancel').addEventListener('click',function(){$('dlg').close();});
+$('pform').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!playersRef)return;
+  var rec={
+    cognome:titleCase($('f-cognome').value),nome:titleCase($('f-nome').value),
+    cartellino:$('f-cart').value.trim(),nascita:$('f-nascita').value,photo:dlgPhoto||''
+  };
+  if(!rec.cognome||!rec.nome){toast('Inserisci cognome e nome.');return;}
+  var wasEdit=!!editId;
+  var op=wasEdit?playersRef.doc(editId).set(rec):playersRef.add(rec);
+  op.then(function(){$('dlg').close();toast(wasEdit?'Giocatore aggiornato':'Giocatore aggiunto');})
+    .catch(function(err){toast(errText(err));});
+});
+twoStep($('del'),'Conferma eliminazione',function(){
+  if(!editId||!playersRef)return;
+  var id=editId;
+  playersRef.doc(id).delete().then(function(){
+    $('dlg').close();
+    if(match.sel[id]){delete match.sel[id];refreshSel();scheduleSave();}
+    toast('Giocatore eliminato');
+  }).catch(function(err){toast(errText(err));});
+});
+
+/* ---------- export PDF ---------- */
+$('export').addEventListener('click',function(){
+  if(!window.jspdf){toast('La libreria PDF non si è caricata. Ricarica la pagina.');return;}
+  if(!dl){toast('L’esportazione non è disponibile in questa vista.');return;}
+  var g1=players.filter(function(p){return match.sel[p.id]===1;});
+  var g2=players.filter(function(p){return match.sel[p.id]===2;});
+  if(!g1.length&&!g2.length)return;
+  var btn=this;btn.disabled=true;
+  var buf;
+  try{
+    buf=buildPdf(window.jspdf.jsPDF,{
+      club:CLUB,shortName:SHORT,categoria:CAT,tecnico:TECNICO,dirigente:DIRIGENTE,data:match.data,
+      i1:info(1),i2:info(2),g1:g1,g2:g2
+    });
+  }catch(err){btn.disabled=false;toast('Non sono riuscito a creare il PDF.');return;}
+  var avv=[slug(match.g[1].avversario),slug(match.g[2].avversario)].filter(function(x,i,a){return x&&a.indexOf(x)===i;});
+  var name=['formazione',match.data].concat(avv).filter(Boolean).join('-')+'.pdf';
+  dl.save({filename:name,data:buf}).then(function(){
+    toast('PDF salvato');
+  }).catch(function(err){
+    if(err&&err.code==='declined')toast('Salvataggio annullato.');
+    else toast('Non sono riuscito a salvare il PDF.');
+  }).then(function(){refreshSel();});
+});
+
+/* ---------- dati salvati ---------- */
+function noDb(){unavailable=true;buildList();}
+function subscribe(){
+  var t=setTimeout(function(){if(!loaded){slow=true;buildList();}},10000);
+  playersRef.onSnapshot(function(snap){
+    clearTimeout(t);loaded=true;slow=false;loadError=null;
+    players=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    players.sort(function(a,b){return (a.cognome||'').localeCompare(b.cognome||'','it')||(a.nome||'').localeCompare(b.nome||'','it');});
+    buildList();
+  },function(err){clearTimeout(t);loadError=err;buildList();});
+  matchRef.onSnapshot(function(snap){
+    if(dirty||snap.metadata.hasPendingWrites)return;
+    match=normMatch(snap.exists?snap.data():null);
+    fillMatch();refreshSel();
+  },function(){});
+}
+buildList();
+if(window.claude&&window.claude.use){
+  window.claude.use('db').then(function(d){
+    if(!d){noDb();return;}
+    db=d;playersRef=db.collection('players');matchRef=db.doc('match/current');subscribe();
+  }).catch(noDb);
+  window.claude.use('downloads').then(function(d){dl=d;}).catch(function(){});
+}else noDb();
+})();
 </script>
-</body>
-</html>
