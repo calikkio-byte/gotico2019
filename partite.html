@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A74B5">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Partite">
+<title>Registro Partite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: elenco partite a sinistra, statistiche dei bambini a destra su schermo largo; una colonna su telefono.
+   Schermi doppi (Surface Duo): una colonna per schermo, cerniera libera.
+   Stessa palette e caratteri della pagina Formazioni. */
+:root{
+  --bg:#EDF1F6; --surface:#FFFFFF; --ink:#0F1B2D; --muted:#566579; --line:#D3DBE6; --field:#F6F8FB;
+  --p1:#0A74B5; --on-p1:#FFFFFF; --p2:#9A5B00; --danger:#B42318;
+  --font-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0B1420; --surface:#132033; --ink:#E8EEF5; --muted:#97A7BB; --line:#253649; --field:#0F1B2B;
+    --p1:#5BB8F0; --on-p1:#06223A; --p2:#F0B04A; --danger:#FF8A7A;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0}
+button,input,textarea{touch-action:manipulation}
+body{
+  background:var(--bg); color:var(--ink); font:16px/1.45 var(--font-body);
+  padding-top:calc(20px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto}
+.head{border-top:6px solid var(--p1);padding-top:14px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo-head{width:56px;height:56px;object-fit:contain;flex:none}
+.eyebrow{margin:0 0 6px;font:600 12px/1.2 var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
+h1{margin:0;font:700 clamp(34px,8vw,56px)/.95 var(--font-display);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+h2{margin:0;font:700 26px/1.1 var(--font-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.tabs{display:flex;gap:8px;margin-top:14px}
+.tabs a{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:600 15px/1 var(--font-body);text-decoration:none}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
+.tile b{display:block;font:700 34px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--p1)}
+.tile span{display:block;margin-top:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.layout{display:grid;gap:16px;margin-top:16px}
+.col{display:grid;gap:16px;align-content:start;min-width:0}
+@media (min-width:900px){.layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.panel-actions{display:flex;flex-wrap:wrap;gap:8px}
+label,legend{display:block;margin:16px 0 6px;padding:0;font:600 12px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+input[type=text],input[type=date]{
+  display:block;width:100%;max-width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit;
+}
+input::placeholder{color:var(--muted);opacity:.8}
+:focus-visible{outline:2px solid var(--p1);outline-offset:2px}
+.btn{min-height:46px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 15px/1 var(--font-body);cursor:pointer}
+.btn.primary{background:var(--p1);border-color:var(--p1);color:var(--on-p1)}
+.btn.danger{color:var(--danger)}
+.btn.small{min-height:40px;font-size:14px;padding:0 12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{margin:8px 0 0;color:var(--muted);font-size:14px;max-width:62ch}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--field)}
+.seg button{min-height:44px;min-width:0;border:0;background:transparent;color:var(--ink);font:600 14px/1.1 var(--font-body);cursor:pointer;padding:0 4px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-checked="true"]{background:var(--ink);color:var(--bg)}
+.list{list-style:none;margin:14px 0 0;padding:0}
+.list>li+li{margin-top:8px}
+.empty{padding:24px 8px;color:var(--muted);text-align:center}
+.mcard{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"d t r" "d n r";gap:2px 14px;align-items:center;width:100%;text-align:left;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:inherit;cursor:pointer}
+.mcard .md{grid-area:d;font:700 20px/1.05 var(--font-display);letter-spacing:.02em;font-variant-numeric:tabular-nums;color:var(--p1);min-width:5.4ch}
+.mcard .mt{grid-area:t;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.mcard .mt strong{font-size:16px;overflow-wrap:anywhere}
+.mcard .mn{grid-area:n;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mcard .mr{grid-area:r;text-align:right}
+.mr b{display:block;font:700 26px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.mr small{display:block;margin-top:2px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.o-V b{color:var(--p1)}
+.o-P b{color:var(--p2)}
+.score{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:14px}
+.score .side{display:grid;gap:6px;justify-items:center}
+.score .sl{font:600 12px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.score .dash{font:700 30px/1 var(--font-display);padding-bottom:10px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--bg);font:600 11px/1.4 var(--font-body);letter-spacing:.05em;text-transform:uppercase}
+.sortbar{margin-top:12px}
+.tw{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font:600 12px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+td.gl{font:700 22px/1 var(--font-display);color:var(--p1)}
+.sn{font:700 20px/1.05 var(--font-display);letter-spacing:.03em;text-transform:uppercase;overflow-wrap:anywhere}
+.fn{font-size:14px;overflow-wrap:anywhere}
+.pc{display:block;font-size:12px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:30;max-width:min(92vw,420px);padding:10px 14px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:14px;text-align:center}
+dialog{width:min(560px,calc(100vw - 24px));max-width:none;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);padding:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);overflow:hidden}
+dialog[open]{display:flex;flex-direction:column}
+dialog::backdrop{background:rgba(8,14,24,.55)}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.sheet-body{flex:1;min-height:0;overflow:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
+.sheet-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-top:1px solid var(--line)}
+.sub{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px}
+.sub h3{margin:0;font:700 22px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"who pres step";gap:8px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.prow:first-child{border-top:0}
+.prow .who{grid-area:who;min-width:0;display:grid;gap:2px}
+.prow .pbtn{grid-area:pres}
+.prow .step{grid-area:step}
+.prow[data-p="0"] .who{opacity:.55}
+.pbtn{min-height:44px;min-width:104px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:600 14px/1 var(--font-body);cursor:pointer}
+.pbtn[aria-pressed="true"]{background:var(--p1);border-color:var(--p1);color:var(--on-p1)}
+.step{display:grid;grid-template-columns:44px 36px 44px;align-items:center;text-align:center}
+.step button{min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:700 22px/1 var(--font-body);cursor:pointer}
+.step output{font:700 26px/1 var(--font-display);font-variant-numeric:tabular-nums}
+@media (max-width:440px){
+  .prow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who who" "pres step"}
+  .pbtn{width:100%}
+}
+@media (max-width:359px){
+  body{font-size:15px}
+  .panel{padding:12px}
+  .btn{padding:0 10px;font-size:14px}
+  .tile b{font-size:28px}
+}
+/* Schermi doppi (Surface Duo e simili): colonna Partite sul primo schermo, Statistiche sul secondo. */
+@media (horizontal-viewport-segments:2){
+  body{padding-left:0;padding-right:0}
+  .wrap{max-width:none}
+  .head,.tiles{margin-left:16px;margin-right:16px}
+  .layout{
+    grid-template-columns:env(viewport-segment-width 0 0) env(viewport-segment-width 1 0);
+    column-gap:calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0));
+  }
+  .col{margin:0 16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="brand">
+      <img id="logo-head" class="logo-head" alt="" hidden>
+      <div>
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1>Partite</h1>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Pagine">
+      <a href="index.html">Formazioni</a>
+      <a href="partite.html" aria-current="page">Partite</a>
+    </nav>
+  </header>
+
+  <div class="tiles" aria-label="Riepilogo">
+    <div class="tile"><b id="t-partite">0</b><span>Partite</span></div>
+    <div class="tile"><b id="t-rec">–</b><span>Vinte · pari · perse</span></div>
+    <div class="tile"><b id="t-gf">–</b><span>Goal fatti – subiti</span></div>
+    <div class="tile"><b id="t-pres">0</b><span>Presenti a partita</span></div>
+  </div>
+
+  <main class="layout">
+    <div class="col">
+      <section class="panel" aria-labelledby="h-match">
+        <div class="panel-head">
+          <h2 id="h-match">Partite giocate</h2>
+          <div class="panel-actions">
+            <button type="button" class="btn small" id="from-form">Dalla formazione</button>
+            <button type="button" class="btn small primary" id="new-match">Nuova partita</button>
+          </div>
+        </div>
+        <p class="hint">“Dalla formazione” crea le partite 1 e 2 con i bambini che hai convocato nella pagina Formazioni, già segnati come presenti.</p>
+        <ul class="list" id="mlist"></ul>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel" aria-labelledby="h-stat">
+        <h2 id="h-stat">Bambini</h2>
+        <div class="seg sortbar" id="sortbar" role="radiogroup" aria-label="Ordina per">
+          <button type="button" role="radio" aria-checked="true" data-v="nome">Nome</button>
+          <button type="button" role="radio" aria-checked="false" data-v="goal">Goal</button>
+          <button type="button" role="radio" aria-checked="false" data-v="pres">Presenze</button>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th scope="col">Giocatore</th><th scope="col">Presenze</th><th scope="col">Goal</th></tr></thead>
+            <tbody id="stats"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="stat-empty" hidden>Nessun giocatore in rosa. Aggiungili dalla pagina Formazioni o importa un backup qui sotto.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="h-bk">
+        <h2 id="h-bk">Backup</h2>
+        <p class="hint">I dati restano solo su questo dispositivo. Il file di backup contiene rosa, foto, logo e partite ed è lo stesso della pagina Formazioni.</p>
+        <div class="two">
+          <button type="button" class="btn" id="bk-save">Salva backup</button>
+          <button type="button" class="btn" id="bk-load">Ripristina</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="bk-file" accept="application/json,.json" hidden>
+
+<dialog id="mdlg" aria-labelledby="mdlg-title">
+  <div class="sheet-head">
+    <h2 id="mdlg-title">Partita</h2>
+    <button type="button" class="btn small primary" id="m-done">Fatto</button>
+  </div>
+  <div class="sheet-body">
+    <label for="e-data">Data</label>
+    <input id="e-data" type="date">
+    <label for="e-avv">Squadra avversaria</label>
+    <input id="e-avv" type="text" autocomplete="off" placeholder="Nome della squadra">
+    <fieldset>
+      <legend>Tipo di gara</legend>
+      <div class="seg" id="e-tipo" role="radiogroup" aria-label="Tipo di gara"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Risultato</legend>
+      <div class="score" id="score">
+        <div class="side"><span class="sl">Noi</span>
+          <div class="step">
+            <button type="button" data-side="gf" data-act="minus" aria-label="Un goal in meno per noi">−</button>
+            <output id="s-gf" aria-label="Goal fatti da noi">–</output>
+            <button type="button" data-side="gf" data-act="plus" aria-label="Un goal in più per noi">+</button>
+          </div></div>
+        <span class="dash" aria-hidden="true">–</span>
+        <div class="side"><span class="sl">Loro</span>
+          <div class="step">
+            <button type="button" data-side="gs" data-act="minus" aria-label="Un goal in meno per gli avversari">−</button>
+            <output id="s-gs" aria-label="Goal subiti">–</output>
+            <button type="button" data-side="gs" data-act="plus" aria-label="Un goal in più per gli avversari">+</button>
+          </div></div>
+      </div>
+      <div class="panel-actions" style="margin-top:12px;justify-content:center">
+        <button type="button" class="btn small" id="use-kids">Usa i goal dei bambini</button>
+        <button type="button" class="btn small" id="clear-score">Cancella risultato</button>
+      </div>
+    </fieldset>
+    <label for="e-note">Note</label>
+    <input id="e-note" type="text" autocomplete="off" placeholder="Facoltative">
+    <div class="sub">
+      <h3>Presenze e goal</h3>
+      <span class="hint" id="e-count" style="margin:0"></span>
+    </div>
+    <div class="panel-actions" style="margin-top:10px">
+      <button type="button" class="btn small" id="all-in">Tutti presenti</button>
+      <button type="button" class="btn small" id="all-out">Nessuno</button>
+    </div>
+    <div id="prows" role="list"></div>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn danger small" id="m-del">Elimina partita</button>
+    <span class="hint" style="margin:0">Le modifiche si salvano da sole.</span>
+  </div>
+</dialog>
+
+<script>
+(function(){
+'use strict';
+
+var TIPI={amichevole:'Amichevole',campionato:'Campionato',torneo:'Torneo'};
+var KP='formazioni.players.v1',KM='formazioni.match.v1',KT='formazioni.team.v1',KL='formazioni.logo.v1',KG='formazioni.matches.v1';
+var $=function(id){return document.getElementById(id);};
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function str(v){return typeof v==='string'?v:'';}
+function readLS(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function writeLS(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v));return true;}
+  catch(e){toast('Non riesco a salvare: la memoria del browser è piena o bloccata.');return false;}
+}
+var toastTimer=null;
+function toast(msg){
+  var t=$('toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;},3600);
+}
+function twoStep(btn,armedLabel,action){
+  var base=btn.textContent,timer=null;
+  btn.addEventListener('click',function(){
+    if(btn.dataset.arm!=='1'){
+      btn.dataset.arm='1';btn.textContent=armedLabel;
+      timer=setTimeout(function(){btn.dataset.arm='0';btn.textContent=base;},4000);
+      return;
+    }
+    clearTimeout(timer);btn.dataset.arm='0';btn.textContent=base;action();
+  });
+}
+function saveBlob(blob,name){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;a.hidden=true;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);
+}
+function newId(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function okId(s){return typeof s==='string'&&/^[A-Za-z0-9_-]{1,60}$/.test(s);}
+function dmy(iso){if(!iso)return 'Senza data';var p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
+function todayIso(){var d=new Date(),p=function(n){return (n<10?'0':'')+n;};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+
+/* ---------- dati condivisi con la pagina Formazioni ---------- */
+function cleanPlayer(p){
+  if(!p||typeof p.cognome!=='string'||typeof p.nome!=='string'||!p.cognome.trim()||!p.nome.trim())return null;
+  return {
+    id:okId(p.id)?p.id:newId(),
+    cognome:p.cognome.trim(),nome:p.nome.trim(),cartellino:str(p.cartellino).trim(),nascita:str(p.nascita),
+    photo:(typeof p.photo==='string'&&p.photo.indexOf('data:image/jpeg;base64,')===0)?p.photo:''
+  };
+}
+function cleanLogo(l){
+  return (l&&typeof l.d==='string'&&/^data:image\/(png|jpeg);base64,/.test(l.d)&&l.w>0&&l.h>0)?{d:l.d,w:+l.w,h:+l.h}:null;
+}
+function score(v){
+  if(v===null||v===undefined||v==='')return null;
+  var n=Math.floor(+v);return (isFinite(n)&&n>=0)?Math.min(n,99):null;
+}
+function outcome(m){return m.gf==null||m.gs==null?'':(m.gf>m.gs?'V':(m.gf<m.gs?'P':'N'));}
+function cleanMatch(m){
+  if(!m||typeof m!=='object')return null;
+  var out={id:okId(m.id)?m.id:newId(),data:str(m.data),avversario:str(m.avversario),tipo:TIPI[m.tipo]?m.tipo:'',note:str(m.note),gf:score(m.gf),gs:score(m.gs),pres:{},goal:{}};
+  var pr=m.pres&&typeof m.pres==='object'?m.pres:{},gl=m.goal&&typeof m.goal==='object'?m.goal:{};
+  Object.keys(pr).forEach(function(k){if(pr[k])out.pres[k]=1;});
+  Object.keys(gl).forEach(function(k){var n=Math.floor(+gl[k]);if(n>0){out.goal[k]=Math.min(n,30);out.pres[k]=1;}});
+  return out;
+}
+var players=[],team={club:'',categoria:'',tecnico:'',dirigente:''},logo=null,matches=[];
+function sortPlayers(){players.sort(function(a,b){return a.cognome.localeCompare(b.cognome,'it')||a.nome.localeCompare(b.nome,'it');});}
+function sortMatches(){
+  matches.sort(function(a,b){
+    var ka=a.data||'9999-99-99',kb=b.data||'9999-99-99';
+    return ka<kb?1:ka>kb?-1:(a.id<b.id?1:a.id>b.id?-1:0);
+  });
+}
+function load(){
+  players=(readLS(KP)||[]).map(cleanPlayer).filter(Boolean);sortPlayers();
+  var t=readLS(KT);
+  Object.keys(team).forEach(function(k){team[k]=(t&&typeof t==='object')?str(t[k]):'';});
+  logo=cleanLogo(readLS(KL));
+  matches=(readLS(KG)||[]).map(cleanMatch).filter(Boolean);sortMatches();
+}
+function saveMatches(){return writeLS(KG,matches);}
+function find(id){return players.filter(function(p){return p.id===id;})[0];}
+
+/* ---------- intestazione ---------- */
+function paintHead(){
+  var t=[team.club.trim(),team.categoria.trim()].filter(Boolean).join(' · ');
+  $('eyebrow').textContent=t||'Imposta società e categoria nella pagina Formazioni';
+  var im=$('logo-head');
+  if(logo){im.src=logo.d;im.hidden=false;}else{im.removeAttribute('src');im.hidden=true;}
+}
+
+/* ---------- riepilogo, elenco e statistiche ---------- */
+function presentCount(m){return players.filter(function(p){return m.pres[p.id];}).length;}
+function goalCount(m){return Object.keys(m.goal).reduce(function(s,k){return s+m.goal[k];},0);}
+function renderSummary(){
+  var n=matches.length,pres=0,v=0,d=0,p=0,gf=0,gs=0,played=0;
+  matches.forEach(function(m){
+    pres+=presentCount(m);
+    var o=outcome(m);if(!o)return;
+    played++;gf+=m.gf;gs+=m.gs;
+    if(o==='V')v++;else if(o==='N')d++;else p++;
+  });
+  $('t-partite').textContent=n;
+  $('t-rec').textContent=played?v+' · '+d+' · '+p:'–';
+  $('t-gf').textContent=played?gf+' – '+gs:'–';
+  $('t-pres').textContent=n?(Math.round(pres/n*10)/10).toString().replace('.',','):'0';
+}
+function renderMatches(){
+  var ul=$('mlist');ul.textContent='';
+  if(!matches.length){ul.appendChild(el('li','empty','Nessuna partita registrata. Tocca “Nuova partita” oppure “Dalla formazione”.'));return;}
+  matches.forEach(function(m){
+    var li=el('li');
+    var b=el('button','mcard');b.type='button';b.dataset.id=m.id;
+    b.appendChild(el('span','md',dmy(m.data)));
+    var mt=el('span','mt');
+    mt.appendChild(el('strong',null,m.avversario?'vs '+m.avversario:'Avversario da definire'));
+    if(m.tipo)mt.appendChild(el('span','pill',TIPI[m.tipo]));
+    b.appendChild(mt);
+    var np=presentCount(m),ng=goalCount(m);
+    b.appendChild(el('span','mn',np+(np===1?' presente':' presenti')+' · '+ng+' goal dei bambini'));
+    var oc=outcome(m);
+    if(oc){
+      var r=el('span','mr o-'+oc);
+      r.appendChild(el('b',null,m.gf+' – '+m.gs));
+      r.appendChild(el('small',null,{V:'Vinta',N:'Pari',P:'Persa'}[oc]));
+      b.appendChild(r);
+    }
+    li.appendChild(b);ul.appendChild(li);
+  });
+}
+var sortBy='nome';
+function renderStats(){
+  var tb=$('stats');tb.textContent='';
+  $('stat-empty').hidden=players.length>0;
+  var tot=matches.length;
+  var rows=players.map(function(p){
+    var pr=0,gl=0;
+    matches.forEach(function(m){if(m.pres[p.id])pr++;gl+=m.goal[p.id]||0;});
+    return {p:p,pr:pr,gl:gl};
+  });
+  if(sortBy==='goal')rows.sort(function(a,b){return b.gl-a.gl||b.pr-a.pr;});
+  else if(sortBy==='pres')rows.sort(function(a,b){return b.pr-a.pr||b.gl-a.gl;});
+  rows.forEach(function(r){
+    var tr=document.createElement('tr');
+    var td=el('td');td.appendChild(el('div','sn',r.p.cognome));td.appendChild(el('div','fn',r.p.nome));tr.appendChild(td);
+    var tp=el('td',null,r.pr+(tot?' / '+tot:''));
+    if(tot)tp.appendChild(el('span','pc',Math.round(100*r.pr/tot)+'%'));
+    tr.appendChild(tp);
+    tr.appendChild(el('td','gl',String(r.gl)));
+    tb.appendChild(tr);
+  });
+}
+function renderAll(){renderSummary();renderMatches();renderStats();}
+$('sortbar').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  sortBy=b.dataset.v;
+  document.querySelectorAll('#sortbar button').forEach(function(x){x.setAttribute('aria-checked',String(x===b));});
+  renderStats();
+});
+
+/* ---------- scheda partita ---------- */
+var cur=null,removed=false;
+$('e-tipo').innerHTML=Object.keys(TIPI).map(function(k){
+  return '<button type="button" role="radio" aria-checked="false" data-v="'+k+'">'+TIPI[k]+'</button>';
+}).join('');
+
+function buildRows(){
+  var box=$('prows');box.textContent='';
+  if(!players.length){box.appendChild(el('p','empty','Nessun giocatore in rosa.'));return;}
+  players.forEach(function(p){
+    var row=el('div','prow');row.dataset.id=p.id;row.setAttribute('role','listitem');
+    var who=el('div','who');who.appendChild(el('strong','sn',p.cognome));who.appendChild(el('span','fn',p.nome));
+    var full=p.nome+' '+p.cognome;
+    var pb=el('button','pbtn','Presente');pb.type='button';pb.dataset.act='pres';pb.setAttribute('aria-label','Presente: '+full);
+    var st=el('div','step');
+    var mi=el('button',null,'−');mi.type='button';mi.dataset.act='minus';mi.setAttribute('aria-label','Un goal in meno per '+full);
+    var out=document.createElement('output');out.setAttribute('aria-label','Goal di '+full);
+    var pl=el('button',null,'+');pl.type='button';pl.dataset.act='plus';pl.setAttribute('aria-label','Un goal in più per '+full);
+    st.appendChild(mi);st.appendChild(out);st.appendChild(pl);
+    row.appendChild(who);row.appendChild(pb);row.appendChild(st);
+    box.appendChild(row);
+  });
+}
+function refreshEditor(){
+  document.querySelectorAll('#prows .prow').forEach(function(row){
+    var id=row.dataset.id,on=!!cur.pres[id],g=cur.goal[id]||0;
+    row.dataset.p=on?'1':'0';
+    var pb=row.querySelector('.pbtn');
+    pb.setAttribute('aria-pressed',String(on));pb.textContent=on?'Presente':'Assente';
+    row.querySelector('output').textContent=g;
+    row.querySelector('[data-act="minus"]').disabled=g===0;
+    row.querySelector('[data-act="plus"]').disabled=g>=30;
+  });
+  var np=presentCount(cur),ng=goalCount(cur);
+  $('e-count').textContent=np+' su '+players.length+' presenti · '+ng+' goal';
+  $('s-gf').textContent=cur.gf==null?'–':cur.gf;
+  $('s-gs').textContent=cur.gs==null?'–':cur.gs;
+  document.querySelectorAll('#score button').forEach(function(b){
+    var v=cur[b.dataset.side];
+    b.disabled=(b.dataset.act==='minus'&&!(v>0))||(b.dataset.act==='plus'&&v>=99);
+  });
+  $('use-kids').textContent='Usa i goal dei bambini ('+ng+')';
+  $('clear-score').disabled=cur.gf==null&&cur.gs==null;
+  document.querySelectorAll('#e-tipo button').forEach(function(b){b.setAttribute('aria-checked',String(b.dataset.v===cur.tipo));});
+}
+function changed(){saveMatches();renderAll();}
+function openEditor(m){
+  cur=m;removed=false;
+  $('mdlg-title').textContent=m.avversario?'Partita con '+m.avversario:'Partita';
+  $('e-data').value=m.data;$('e-avv').value=m.avversario;$('e-note').value=m.note;
+  buildRows();refreshEditor();
+  $('mdlg').showModal();
+  $('mdlg').querySelector('.sheet-body').scrollTop=0;
+}
+$('e-data').addEventListener('input',function(){if(!cur)return;cur.data=this.value;changed();});
+$('e-avv').addEventListener('input',function(){if(!cur)return;cur.avversario=this.value;$('mdlg-title').textContent=cur.avversario?'Partita con '+cur.avversario:'Partita';changed();});
+$('e-note').addEventListener('input',function(){if(!cur)return;cur.note=this.value;saveMatches();});
+$('e-tipo').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||!cur)return;
+  cur.tipo=(cur.tipo===b.dataset.v)?'':b.dataset.v;
+  refreshEditor();changed();
+});
+$('score').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||!cur)return;
+  var k=b.dataset.side,o=(k==='gf')?'gs':'gf',v=cur[k];
+  if(b.dataset.act==='plus'){
+    cur[k]=Math.min(99,(v==null?0:v)+1);
+    if(cur[o]==null)cur[o]=0;
+  }else if(v>0)cur[k]=v-1;
+  refreshEditor();changed();
+});
+$('use-kids').addEventListener('click',function(){
+  if(!cur)return;
+  cur.gf=Math.min(99,goalCount(cur));
+  refreshEditor();changed();
+});
+$('clear-score').addEventListener('click',function(){
+  if(!cur)return;
+  cur.gf=null;cur.gs=null;
+  refreshEditor();changed();
+});
+$('prows').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||!cur)return;
+  var row=b.closest('.prow');if(!row)return;
+  var id=row.dataset.id,act=b.dataset.act;
+  if(act==='pres'){
+    if(cur.pres[id]){delete cur.pres[id];delete cur.goal[id];}else cur.pres[id]=1;
+  }else if(act==='plus'){
+    cur.goal[id]=Math.min(30,(cur.goal[id]||0)+1);cur.pres[id]=1;
+  }else if(act==='minus'){
+    var g=(cur.goal[id]||0)-1;if(g>0)cur.goal[id]=g;else delete cur.goal[id];
+  }
+  refreshEditor();changed();
+});
+$('all-in').addEventListener('click',function(){
+  if(!cur)return;
+  players.forEach(function(p){cur.pres[p.id]=1;});
+  refreshEditor();changed();
+});
+twoStep($('all-out'),'Tocca ancora: cancella anche i goal',function(){
+  if(!cur)return;
+  cur.pres={};cur.goal={};
+  refreshEditor();changed();
+});
+twoStep($('m-del'),'Conferma eliminazione',function(){
+  if(!cur)return;
+  var id=cur.id;
+  matches=matches.filter(function(m){return m.id!==id;});
+  removed=true;saveMatches();$('mdlg').close();toast('Partita eliminata');
+});
+$('m-done').addEventListener('click',function(){$('mdlg').close();});
+$('mdlg').addEventListener('close',function(){
+  if(cur&&!removed){
+    var empty=!cur.data&&!cur.avversario&&!cur.note&&!cur.tipo&&cur.gf==null&&cur.gs==null&&!Object.keys(cur.pres).length;
+    if(empty){var id=cur.id;matches=matches.filter(function(m){return m.id!==id;});}
+    sortMatches();saveMatches();
+  }
+  cur=null;renderAll();
+});
+$('mlist').addEventListener('click',function(e){
+  var b=e.target.closest('.mcard');if(!b)return;
+  var m=matches.filter(function(x){return x.id===b.dataset.id;})[0];
+  if(m)openEditor(m);
+});
+$('new-match').addEventListener('click',function(){
+  var m={id:newId(),data:todayIso(),avversario:'',tipo:'',note:'',gf:null,gs:null,pres:{},goal:{}};
+  matches.push(m);sortMatches();saveMatches();renderAll();openEditor(m);
+});
+
+/* ---------- partite dalla formazione ---------- */
+$('from-form').addEventListener('click',function(){
+  var f=readLS(KM);
+  if(!f||typeof f!=='object'||!f.sel){toast('Non c’è ancora nessuna formazione: preparala nella pagina Formazioni.');return;}
+  var made=0,skipped=0;
+  [1,2].forEach(function(n){
+    var ids=players.filter(function(p){return f.sel[p.id]===n;}).map(function(p){return p.id;});
+    if(!ids.length)return;
+    var g=(f.g&&f.g[n])||{};
+    var rec={id:newId(),data:str(f.data),avversario:str(g.avversario).trim(),tipo:TIPI[g.tipo]?g.tipo:'',note:'',gf:null,gs:null,pres:{},goal:{}};
+    ids.forEach(function(id){rec.pres[id]=1;});
+    var dup=rec.data&&matches.some(function(x){return x.data===rec.data&&x.avversario===rec.avversario&&x.tipo===rec.tipo;});
+    if(dup){skipped++;return;}
+    matches.push(rec);made++;
+  });
+  sortMatches();saveMatches();renderAll();
+  if(made)toast(made===1?'Creata 1 partita dalla formazione.':'Create '+made+' partite dalla formazione.');
+  else toast(skipped?'Le partite di questa formazione ci sono già.':'Nella formazione non ci sono bambini convocati.');
+});
+
+/* ---------- backup ---------- */
+$('bk-save').addEventListener('click',function(){
+  var data={app:'formazioni-primi-calci',version:1,savedAt:new Date().toISOString(),players:players,match:readLS(KM)||undefined,team:team,logo:logo||undefined,matches:matches};
+  var d=new Date(),p=function(n){return (n<10?'0':'')+n;};
+  saveBlob(new Blob([JSON.stringify(data)],{type:'application/json'}),'formazioni-backup-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.json');
+  toast('Backup creato: lo trovi nei download.');
+});
+$('bk-load').addEventListener('click',function(){$('bk-file').click();});
+$('bk-file').addEventListener('change',function(){
+  var f=this.files&&this.files[0];this.value='';
+  if(!f)return;
+  var fr=new FileReader();
+  fr.onerror=function(){toast('Non riesco a leggere il file.');};
+  fr.onload=function(){
+    try{
+      var d=JSON.parse(fr.result);
+      var list=Array.isArray(d)?d:d.players;
+      if(!Array.isArray(list)&&!Array.isArray(d.matches))throw new Error('formato');
+      var np=0,nm=0;
+      (Array.isArray(list)?list:[]).map(cleanPlayer).filter(Boolean).forEach(function(p){
+        var old=find(p.id);
+        if(old){Object.keys(p).forEach(function(k){if(k!=='id'&&p[k])old[k]=p[k];});}else players.push(p);
+        np++;
+      });
+      if(np){sortPlayers();writeLS(KP,players);}
+      if(!Array.isArray(d)){
+        (Array.isArray(d.matches)?d.matches:[]).map(cleanMatch).filter(Boolean).forEach(function(m){
+          var i=-1;matches.forEach(function(x,k){if(x.id===m.id)i=k;});
+          if(i>=0)matches[i]=m;else matches.push(m);
+          nm++;
+        });
+        if(nm){sortMatches();saveMatches();}
+        if(d.team&&typeof d.team==='object'){Object.keys(team).forEach(function(k){team[k]=str(d.team[k]);});writeLS(KT,team);}
+        var lg=cleanLogo(d.logo);if(lg){logo=lg;writeLS(KL,logo);}
+      }
+      paintHead();renderAll();
+      toast('Importati '+np+' giocatori e '+nm+' partite.');
+    }catch(err){toast('Questo file non è un backup valido.');}
+  };
+  fr.readAsText(f);
+});
+
+window.addEventListener('pageshow',function(e){
+  if(e.persisted&&!cur){load();paintHead();renderAll();}
+});
+load();paintHead();renderAll();
+})();
+</script>
+</body>
+</html>
