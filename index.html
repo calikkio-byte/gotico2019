@@ -51,6 +51,23 @@ h2{margin:0;font:700 26px/1.1 var(--font-display);letter-spacing:.02em;text-tran
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
 label,legend{display:block;margin:16px 0 6px;padding:0;font:600 12px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .panel h2+label{margin-top:12px}
+.panel h2.sep{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.game .hint{margin:6px 0 0;min-height:0}
+.game .hint:empty{display:none}
+.hint.bad{color:var(--danger)}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo-head{width:56px;height:56px;object-fit:contain;flex:none}
+.eyebrow{overflow-wrap:anywhere}
+.tabs{display:flex;gap:8px;margin-top:14px}
+.tabs a{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:600 15px/1 var(--font-body);text-decoration:none}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.logo-row{display:flex;align-items:center;gap:14px;margin-top:12px}
+.logo-box{flex:none;width:72px;height:72px;padding:4px;border:2px dashed var(--line);border-radius:10px;background:var(--field);color:var(--muted);display:grid;place-items:center;cursor:pointer;font:600 12px/1.1 var(--font-body);text-align:center}
+.logo-box img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.logo-side{flex:1;min-width:0}
+.logo-side .hint{margin:0 0 8px}
+.logo-btns{display:flex;flex-wrap:wrap;gap:8px}
+.logo-btns .btn{min-height:40px;font-size:14px;padding:0 12px}
 fieldset{border:0;margin:0;padding:0;min-width:0}
 input[type=text],input[type=date],input[type=time]{
   display:block;width:100%;max-width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit;
@@ -155,13 +172,41 @@ dialog::backdrop{background:rgba(8,14,24,.55)}
 <body>
 <div class="wrap">
   <header class="head">
-    <p class="eyebrow">U.S.D. Gotico Garibaldina · Primi Calci 2019</p>
-    <h1>Formazioni</h1>
+    <div class="brand">
+      <img id="logo-head" class="logo-head" alt="" hidden>
+      <div>
+        <p class="eyebrow" id="eyebrow"></p>
+        <h1>Formazioni</h1>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Pagine">
+      <a href="index.html" aria-current="page">Formazioni</a>
+      <a href="partite.html">Partite</a>
+    </nav>
   </header>
 
   <main class="layout">
     <section class="panel" aria-labelledby="h-gara">
-      <h2 id="h-gara">Le gare</h2>
+      <h2 id="h-sq">La squadra</h2>
+      <div class="logo-row">
+        <button type="button" class="logo-box" id="logo-btn" aria-label="Scegli il logo della squadra"></button>
+        <div class="logo-side">
+          <p class="hint">Logo della squadra. Compare nell'intestazione e nel PDF.</p>
+          <div class="logo-btns">
+            <button type="button" class="btn" id="logo-load">Carica logo</button>
+            <button type="button" class="btn danger" id="logo-del" hidden>Rimuovi</button>
+          </div>
+        </div>
+      </div>
+      <label for="t-club">Società</label>
+      <input id="t-club" type="text" autocomplete="off" placeholder="Nome della società">
+      <label for="t-cat">Categoria</label>
+      <input id="t-cat" type="text" autocomplete="off" placeholder="Per esempio Primi Calci 2019">
+      <div class="two">
+        <div><label for="t-tec">Tecnico</label><input id="t-tec" type="text" autocomplete="off"></div>
+        <div><label for="t-dir">Dirigente</label><input id="t-dir" type="text" autocomplete="off"></div>
+      </div>
+      <h2 id="h-gara" class="sep">Le gare</h2>
       <label for="m-data">Data</label>
       <input id="m-data" type="date">
       <div id="games"></div>
@@ -203,6 +248,7 @@ dialog::backdrop{background:rgba(8,14,24,.55)}
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <input type="file" id="file" accept="image/*" hidden>
 <input type="file" id="bk-file" accept="application/json,.json" hidden>
+<input type="file" id="logo-file" accept="image/*" hidden>
 
 <dialog id="dlg" aria-labelledby="dlg-title">
   <form id="pform">
@@ -233,9 +279,6 @@ dialog::backdrop{background:rgba(8,14,24,.55)}
 (function(){
 'use strict';
 
-/* Modifica qui i dati fissi della squadra. */
-var CLUB='U.S.D. Gotico Garibaldina', SHORT='Gotico Garibaldina', CAT='Primi Calci 2019';
-var TECNICO='Canepari Luigi', DIRIGENTE='Calicchio Marco';
 var TIPI={amichevole:'Amichevole',campionato:'Campionato',torneo:'Torneo'};
 
 function buildPdf(JsPDF,d){
@@ -258,15 +301,23 @@ function buildPdf(JsPDF,d){
   function topBand(full){
     fill(BLUE);doc.rect(0,0,W,full?14:8,'F');ink(WHITE);
     if(full){
-      font('bold',11);doc.text(d.club.toUpperCase(),M,9.3);
-      font('bold',10);doc.text(d.categoria.toUpperCase(),W-M,9.3,{align:'right'});
+      if(d.club){font('bold',11);doc.text(doc.splitTextToSize(d.club.toUpperCase(),CW*0.62)[0],M,9.3);}
+      if(d.categoria){font('bold',10);doc.text(doc.splitTextToSize(d.categoria.toUpperCase(),CW*0.35)[0],W-M,9.3,{align:'right'});}
     }else{
-      font('bold',7.5);doc.text(d.club.toUpperCase()+' - FORMAZIONE',M,5.4);
+      font('bold',7.5);doc.text((d.club?d.club.toUpperCase()+' - ':'')+'FORMAZIONE',M,5.4);
     }
   }
 
   topBand(true);
-  font('bold',27);ink(NAVY);doc.text('FORMAZIONE',M,30);
+  var tx=M;
+  if(d.logo){
+    try{
+      var bw=18,bh=18,r=Math.min(bw/d.logo.w,bh/d.logo.h),lw=d.logo.w*r,lh=d.logo.h*r;
+      doc.addImage(d.logo.d,d.logo.d.indexOf('image/png')>0?'PNG':'JPEG',M+(bw-lw)/2,17.5+(bh-lh)/2,lw,lh,undefined,'FAST');
+      tx=M+bw+4;
+    }catch(e){}
+  }
+  font('bold',27);ink(NAVY);doc.text('FORMAZIONE',tx,30);
   font('bold',6.5);ink(GREY);doc.text('DATA',W-M,23.6,{align:'right'});
   font('bold',12.5);ink(NAVY);doc.text(longDate(d.data),W-M,29.5,{align:'right'});
   y=40;
@@ -279,7 +330,7 @@ function buildPdf(JsPDF,d){
     y+=11;
   }
   function strip(info,color){
-    var h=14,x=M+4,rx=W-M-4;
+    var h=info.maps?21:14,x=M+4,rx=W-M-4;
     fill(SOFT);doc.roundedRect(M,y,CW,h,2,2,'F');
     if(info.tipoLabel){
       var lab=info.tipoLabel.toUpperCase();
@@ -296,6 +347,14 @@ function buildPdf(JsPDF,d){
     doc.text('RITROVO',rx-56,y+5);doc.text('INIZIO PARTITA',rx-26,y+5);
     font('bold',12);ink(NAVY);
     doc.text(info.ritrovo||'-',rx-56,y+11.4);doc.text(info.inizio||'-',rx-26,y+11.4);
+    if(info.maps){
+      var LK=[0,102,184],lt='Apri su Google Maps';
+      font('bold',6.3);ink(GREY);doc.text('LUOGO',M+4,y+18.1);
+      font('bold',9);ink(LK);
+      doc.textWithLink(lt,M+16,y+18.1,{url:info.maps});
+      var lw=doc.getTextWidth(lt);
+      stroke(LK);doc.setLineWidth(0.2);doc.line(M+16,y+19,M+16+lw,y+19);
+    }
     y+=h+4;
   }
   function newPage(){doc.addPage();topBand(false);y=16;}
@@ -321,7 +380,7 @@ function buildPdf(JsPDF,d){
   }
   function section(title,color,list,info){
     if(!list.length)return;
-    if(y+11+18+ROWH>LIMIT)newPage();
+    if(y+11+(info.maps?25:18)+ROWH>LIMIT)newPage();
     secHead(title,color,list.length,false);
     strip(info,color);
     list.forEach(function(p,i){
@@ -342,10 +401,12 @@ function buildPdf(JsPDF,d){
     doc.setPage(i);
     fill(BLUE);doc.rect(0,H-6,W,6,'F');
     stroke(LINE);doc.setLineWidth(0.25);doc.line(M,H-17,W-M,H-17);
-    font('bold',8);ink(NAVY);doc.text('TECNICO',M,H-11.5);
-    font('normal',8.5);doc.text(d.tecnico,M+16,H-11.5);
-    font('bold',8);doc.text('DIRIGENTE',M+70,H-11.5);
-    font('normal',8.5);doc.text(d.dirigente,M+89,H-11.5);
+    var fx=M;
+    [['TECNICO',d.tecnico],['DIRIGENTE',d.dirigente]].forEach(function(r){
+      if(!r[1])return;
+      font('bold',8);ink(NAVY);doc.text(r[0],fx,H-11.5);fx+=doc.getTextWidth(r[0])+2.5;
+      font('normal',8.5);doc.text(r[1],fx,H-11.5);fx+=doc.getTextWidth(r[1])+9;
+    });
     font('normal',8);ink(GREY);doc.text('Pagina '+i+' di '+n,W-M,H-11.5,{align:'right'});
   }
   return doc.output('arraybuffer');
@@ -356,7 +417,7 @@ function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=c
 var CAM='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 
 /* ---------- memoria del dispositivo ---------- */
-var KP='formazioni.players.v1',KM='formazioni.match.v1';
+var KP='formazioni.players.v1',KM='formazioni.match.v1',KT='formazioni.team.v1',KL='formazioni.logo.v1',KG='formazioni.matches.v1';
 function readLS(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
 function writeLS(k,v){
   try{localStorage.setItem(k,JSON.stringify(v));return true;}
@@ -368,7 +429,7 @@ function checkStorage(){
 }
 
 /* ---------- dati ---------- */
-function blankGame(){return {tipo:'',avversario:'',ritrovo:'',inizio:''};}
+function blankGame(){return {tipo:'',avversario:'',ritrovo:'',inizio:'',maps:''};}
 function blankMatch(){return {data:'',g:{1:blankGame(),2:blankGame()},sel:{}};}
 function str(v){return typeof v==='string'?v:'';}
 function normMatch(d){
@@ -378,7 +439,7 @@ function normMatch(d){
   Object.keys(sel).forEach(function(k){if(sel[k]===1||sel[k]===2)m.sel[k]=sel[k];});
   [1,2].forEach(function(n){
     var s=(d.g&&d.g[n])||{};
-    m.g[n]={tipo:TIPI[s.tipo]?s.tipo:'',avversario:str(s.avversario),ritrovo:str(s.ritrovo),inizio:str(s.inizio)};
+    m.g[n]={tipo:TIPI[s.tipo]?s.tipo:'',avversario:str(s.avversario),ritrovo:str(s.ritrovo),inizio:str(s.inizio),maps:str(s.maps)};
   });
   return m;
 }
@@ -396,6 +457,12 @@ function sortPlayers(){
 }
 var players=(readLS(KP)||[]).map(cleanPlayer).filter(Boolean);
 var match=normMatch(readLS(KM));
+function cleanLogo(l){
+  return (l&&typeof l.d==='string'&&/^data:image\/(png|jpeg);base64,/.test(l.d)&&l.w>0&&l.h>0)?{d:l.d,w:+l.w,h:+l.h}:null;
+}
+var logo=cleanLogo(readLS(KL));
+var team={club:'',categoria:'',tecnico:'',dirigente:''};
+(function(){var t=readLS(KT);if(t&&typeof t==='object')Object.keys(team).forEach(function(k){team[k]=str(t[k]);});})();
 var pick=null,editId=null,dlgPhoto='',saveTimer=null;
 sortPlayers();
 
@@ -403,7 +470,16 @@ function titleCase(s){return s.trim().replace(/\s+/g,' ').toLowerCase().replace(
 function dmy(iso){if(!iso)return '';var p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
 function initials(p){return ((p.cognome||'?').charAt(0)+(p.nome||'').charAt(0)).toUpperCase();}
 function slug(s){return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
-function info(n){var g=match.g[n];return {tipoLabel:TIPI[g.tipo]||'',avversario:(g.avversario||'').trim(),ritrovo:g.ritrovo,inizio:g.inizio};}
+function info(n){var g=match.g[n];return {tipoLabel:TIPI[g.tipo]||'',avversario:(g.avversario||'').trim(),ritrovo:g.ritrovo,inizio:g.inizio,maps:cleanUrl(g.maps)||''};}
+function p2(n){return (n<10?'0':'')+n;}
+function add30(t){var m=/^(\d{1,2}):(\d{2})/.exec(t||'');if(!m)return '';var n=(+m[1]*60+(+m[2])+30)%1440;return p2(Math.floor(n/60))+':'+p2(n%60);}
+/* '' = vuoto, null = non valido, altrimenti l'indirizzo pulito */
+function cleanUrl(s){
+  s=(s||'').trim();if(!s)return '';
+  if(!/^https?:\/\//i.test(s)){if(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(s))s='https://'+s;else return null;}
+  if(/\s/.test(s))return null;
+  try{new URL(s);return s;}catch(e){return null;}
+}
 function find(id){return players.filter(function(p){return p.id===id;})[0];}
 
 var toastTimer=null;
@@ -434,13 +510,79 @@ function flushMatch(){if(saveTimer===null)return;clearTimeout(saveTimer);saveTim
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')flushMatch();});
 window.addEventListener('pagehide',flushMatch);
 
+/* ---------- logo ---------- */
+function paintLogo(){
+  var box=$('logo-btn');box.textContent='';
+  var head=$('logo-head');
+  if(logo){
+    var im=document.createElement('img');im.src=logo.d;im.alt='Logo della squadra';box.appendChild(im);
+    head.src=logo.d;head.hidden=false;
+  }else{
+    box.textContent='Logo';
+    head.removeAttribute('src');head.hidden=true;
+  }
+  $('logo-del').hidden=!logo;
+  $('logo-load').textContent=logo?'Cambia logo':'Carica logo';
+}
+function processLogo(file){
+  return new Promise(function(resolve,reject){
+    var fr=new FileReader();
+    fr.onerror=function(){reject(new Error('read'));};
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){reject(new Error('img'));};
+      img.onload=function(){
+        var iw=img.naturalWidth||256,ih=img.naturalHeight||256,MAX=256,r=Math.min(1,MAX/Math.max(iw,ih));
+        var w=Math.max(1,Math.round(iw*r)),hh=Math.max(1,Math.round(ih*r));
+        var cv=document.createElement('canvas');cv.width=w;cv.height=hh;
+        var cx=cv.getContext('2d');cx.imageSmoothingQuality='high';
+        cx.drawImage(img,0,0,w,hh);
+        resolve({d:cv.toDataURL('image/png'),w:w,h:hh});
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+$('logo-btn').addEventListener('click',function(){$('logo-file').click();});
+$('logo-load').addEventListener('click',function(){$('logo-file').click();});
+$('logo-del').addEventListener('click',function(){
+  logo=null;try{localStorage.removeItem(KL);}catch(e){}
+  paintLogo();toast('Logo rimosso');
+});
+$('logo-file').addEventListener('change',function(){
+  var f=this.files&&this.files[0];this.value='';
+  if(!f)return;
+  processLogo(f).then(function(l){
+    var prev=logo;logo=l;
+    if(writeLS(KL,logo)){paintLogo();toast('Logo salvato');}
+    else{logo=prev;paintLogo();}
+  }).catch(function(){toast('Non riesco a leggere questa immagine. Prova con un PNG o un JPG.');});
+});
+
+/* ---------- squadra ---------- */
+var TEAM_F=[['t-club','club'],['t-cat','categoria'],['t-tec','tecnico'],['t-dir','dirigente']];
+function refreshHeader(){
+  var t=[team.club.trim(),team.categoria.trim()].filter(Boolean).join(' · ');
+  $('eyebrow').textContent=t||'Imposta società e categoria';
+}
+function fillTeam(){TEAM_F.forEach(function(f){setField(f[0],team[f[1]]||'');});refreshHeader();}
+TEAM_F.forEach(function(f){
+  $(f[0]).addEventListener('input',function(){team[f[1]]=this.value;writeLS(KT,team);refreshHeader();});
+});
+
 /* ---------- gare ---------- */
 function setField(id,v){var i=$(id);if(i.value!==v)i.value=v;}
+function mapStatus(n){
+  var p=$('m-mst-'+n),u=cleanUrl(match.g[n].maps);
+  p.className='hint'+(u===null?' bad':'');
+  p.textContent=u===null?'Il link non è valido: deve iniziare con https://':(u?'Link valido: nel PDF sarà cliccabile.':'');
+}
 function fillMatch(){
   setField('m-data',match.data||'');
   [1,2].forEach(function(n){
     var g=match.g[n];
-    setField('m-avv-'+n,g.avversario||'');setField('m-rit-'+n,g.ritrovo||'');setField('m-ini-'+n,g.inizio||'');
+    setField('m-avv-'+n,g.avversario||'');setField('m-rit-'+n,g.ritrovo||'');setField('m-ini-'+n,g.inizio||'');setField('m-map-'+n,g.maps||'');mapStatus(n);
     document.querySelectorAll('#tipo-'+n+' button').forEach(function(b){b.setAttribute('aria-checked',String(b.dataset.v===g.tipo));});
   });
 }
@@ -452,11 +594,25 @@ $('games').innerHTML=[1,2].map(function(n){return ''+
   '<label for="m-avv-'+n+'">Squadra avversaria</label><input id="m-avv-'+n+'" type="text" autocomplete="off" placeholder="Nome della squadra">'+
   '<div class="two"><div><label for="m-rit-'+n+'">Ritrovo</label><input id="m-rit-'+n+'" type="time"></div>'+
   '<div><label for="m-ini-'+n+'">Inizio partita</label><input id="m-ini-'+n+'" type="time"></div></div>'+
+  '<label for="m-map-'+n+'">Link Google Maps</label><input id="m-map-'+n+'" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="Incolla qui il link del campo">'+
+  '<p class="hint" id="m-mst-'+n+'" aria-live="polite"></p>'+
   '</section>';}).join('');
 $('m-data').addEventListener('input',function(){match.data=this.value;scheduleSave();});
 [1,2].forEach(function(n){
-  [['m-avv-','avversario'],['m-rit-','ritrovo'],['m-ini-','inizio']].forEach(function(f){
-    $(f[0]+n).addEventListener('input',function(){match.g[n][f[1]]=this.value;scheduleSave();});
+  [['m-avv-','avversario'],['m-rit-','ritrovo'],['m-ini-','inizio'],['m-map-','maps']].forEach(function(f){
+    function onEdit(){
+      var g=match.g[n],v=this.value;
+      if(f[1]==='ritrovo'){
+        /* l'inizio segue il ritrovo (+30 minuti) finché non lo cambi a mano */
+        var prev=g.ritrovo?add30(g.ritrovo):'';
+        g.ritrovo=v;
+        if(v&&(!g.inizio||g.inizio===prev)){g.inizio=add30(v);setField('m-ini-'+n,g.inizio);}
+      }else g[f[1]]=v;
+      if(f[1]==='maps')mapStatus(n);
+      scheduleSave();
+    }
+    $(f[0]+n).addEventListener('input',onEdit);
+    if(f[1]==='ritrovo')$(f[0]+n).addEventListener('change',onEdit);
   });
   $('tipo-'+n).addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
@@ -612,7 +768,7 @@ function makePdf(){
   var buf;
   try{
     buf=buildPdf(window.jspdf.jsPDF,{
-      club:CLUB,shortName:SHORT,categoria:CAT,tecnico:TECNICO,dirigente:DIRIGENTE,data:match.data,
+      club:team.club.trim(),categoria:team.categoria.trim(),tecnico:team.tecnico.trim(),dirigente:team.dirigente.trim(),data:match.data,logo:logo,
       i1:info(1),i2:info(2),g1:g1,g2:g2
     });
   }catch(err){toast('Non sono riuscito a creare il PDF.');return null;}
@@ -633,7 +789,7 @@ $('export').addEventListener('click',function(){
 $('share').addEventListener('click',function(){
   var r=makePdf();if(!r)return;
   var f=new File([r.blob],r.name,{type:'application/pdf'});
-  navigator.share({files:[f],title:'Formazione '+CAT}).catch(function(err){
+  navigator.share({files:[f],title:('Formazione '+team.categoria).trim()}).catch(function(err){
     if(err&&err.name!=='AbortError')toast('Condivisione non riuscita. Usa Scarica PDF.');
   });
 });
@@ -641,7 +797,7 @@ $('share').addEventListener('click',function(){
 /* ---------- backup ---------- */
 $('bk-save').addEventListener('click',function(){
   flushMatch();
-  var data={app:'formazioni-primi-calci',version:1,savedAt:new Date().toISOString(),players:players,match:match};
+  var data={app:'formazioni-primi-calci',version:1,savedAt:new Date().toISOString(),players:players,match:match,team:team,logo:logo||undefined,matches:readLS(KG)||[]};
   var d=new Date(),pad=function(n){return (n<10?'0':'')+n;};
   var name='formazioni-backup-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json';
   saveBlob(new Blob([JSON.stringify(data)],{type:'application/json'}),name);
@@ -661,10 +817,21 @@ $('bk-file').addEventListener('change',function(){
       var n=0;
       list.map(cleanPlayer).filter(Boolean).forEach(function(p){
         var old=find(p.id);
-        if(old)Object.assign(old,p);else players.push(p);
+        if(old){Object.keys(p).forEach(function(k){if(k!=='id'&&p[k])old[k]=p[k];});}else players.push(p);
         n++;
       });
       if(!Array.isArray(d)&&d.match){match=normMatch(d.match);writeLS(KM,match);fillMatch();}
+      if(!Array.isArray(d)&&Array.isArray(d.matches)&&d.matches.length){
+        var have=readLS(KG)||[];
+        d.matches.forEach(function(m){
+          if(!m||typeof m!=='object'||typeof m.id!=='string')return;
+          var i=-1;have.forEach(function(x,k){if(x&&x.id===m.id)i=k;});
+          if(i>=0)have[i]=m;else have.push(m);
+        });
+        writeLS(KG,have);
+      }
+      if(!Array.isArray(d)){var lg=cleanLogo(d.logo);if(lg){logo=lg;writeLS(KL,logo);paintLogo();}}
+      if(!Array.isArray(d)&&d.team&&typeof d.team==='object'){TEAM_F.forEach(function(f){team[f[1]]=str(d.team[f[1]]);});writeLS(KT,team);fillTeam();}
       sortPlayers();savePlayers();buildList();
       toast(n===1?'Importato 1 giocatore.':'Importati '+n+' giocatori.');
     }catch(err){toast('Questo file non è un backup valido.');}
@@ -672,6 +839,8 @@ $('bk-file').addEventListener('change',function(){
   fr.readAsText(f);
 });
 
+fillTeam();
+paintLogo();
 fillMatch();
 buildList();
 checkStorage();
